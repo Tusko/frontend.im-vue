@@ -22,11 +22,9 @@ export default {
   },
   beforeMount() {
     this.fetchGitUser("tusko");
-    this.fetchWakatime("langs");
-    this.fetchWakatime("activity");
   },
   methods: {
-    ...mapActions(["fetchGitUser", "fetchWakatime"])
+    ...mapActions(["fetchGitUser"])
   }
 };
 </script>

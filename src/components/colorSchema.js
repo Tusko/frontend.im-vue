@@ -15,6 +15,7 @@ function activateLightMode() {
     "--font": "Source Code Pro",
     "--font2": "Source Sans Pro",
     "--light": "rgb(246, 248, 250)",
+    "--white": "#fff",
     "--blue": "rgb(0, 112, 243)",
     "--dark": "rgb(26, 30, 34)",
     "--row": "70em",

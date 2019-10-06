@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main v-if="getGitUser">
     <div class="me">
       <section class="row inrow">
         <figure class="me-avatar row" data-aos="zoom-in-up">
@@ -14,6 +14,7 @@
         </article>
       </section>
     </div>
+    <charts />
   </main>
 </template>
 
@@ -21,6 +22,9 @@
 import { mapGetters } from "vuex";
 export default {
   name: "Home",
+  components: {
+    charts: () => import("./charts")
+  },
   data: () => ({
     me: null
   }),
