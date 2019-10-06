@@ -1,0 +1,27 @@
+@import "reset";
+
+body {
+  font: 400 16px var(--font);
+  color: var(--dark);
+}
+
+#app {
+  flex-direction: column;
+  display: flex;
+  main {
+    overflow: hidden;
+    flex: 1 0 auto;
+    width: 100%;
+  }
+}
+
+.content {
+  > * {
+    padding-bottom: 20px;
+  }
+  h1 {
+    font-family: var(--font2);
+    font-weight: 600;
+    font-size: 32px;
+  }
+}

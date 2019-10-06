@@ -1,28 +1,32 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <router-view />
+    <app-footer />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import AOS from "aos";
+import "aos/dist/aos.css";
+import "./assets/main.scss";
+import setColorScheme from "./components/colorSchema";
+import { mapActions } from "vuex";
 
 export default {
-  name: 'app',
   components: {
-    HelloWorld
+    "app-footer": () => import("./components/footer")
+  },
+  created() {
+    setColorScheme();
+    AOS.init();
+  },
+  beforeMount() {
+    this.fetchGitUser("tusko");
+    this.fetchWakatime("langs");
+    this.fetchWakatime("activity");
+  },
+  methods: {
+    ...mapActions(["fetchGitUser", "fetchWakatime"])
   }
-}
+};
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

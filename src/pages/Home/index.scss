@@ -1,0 +1,17 @@
+.me {
+  background: var(--dark);
+  color: var(--light);
+  text-align: center;
+  padding-top: 10vh;
+  min-height: 100vh;
+  &-avatar {
+    border: 5px solid var(--blue);
+    margin-bottom: 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    max-width: 180px;
+    img {
+      display: block;
+    }
+  }
+}
