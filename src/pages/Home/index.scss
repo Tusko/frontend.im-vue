@@ -1,9 +1,13 @@
 .me {
   background: var(--dark);
+  justify-content: center;
+  flex-direction: column;
+  align-content: center;
   color: var(--light);
   text-align: center;
-  padding-top: 10vh;
   min-height: 100vh;
+  padding: 10vh 0;
+  display: flex;
   &-avatar {
     border: 5px solid var(--blue);
     margin-bottom: 20px;

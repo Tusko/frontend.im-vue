@@ -14,13 +14,15 @@ function activateLightMode() {
   const lightTheme = {
     "--font": "Source Code Pro",
     "--font2": "Source Sans Pro",
-    "--light": "rgb(246, 248, 250)",
+    "--light": "#f6f8fa",
     "--white": "#fff",
-    "--blue": "rgb(0, 112, 243)",
-    "--dark": "rgb(26, 30, 34)",
+    "--blue": "#0070f3",
+    "--bluelight": "#119DA4",
+    "--red": "#EA526F",
+    "--dark": "#1a1e22",
+    "--black": "#070600",
     "--row": "70em",
-    "--in-row": "40em",
-    "--black": "#000"
+    "--in-row": "40em"
   };
   for (const k in lightTheme) {
     rootElement.style.setProperty(k, lightTheme[k]);
