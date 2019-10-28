@@ -2,6 +2,7 @@
 
 body {
   font: 400 16px var(--font);
+  background: var(--light);
   color: var(--dark);
 }
 
@@ -23,5 +24,37 @@ body {
     font-family: var(--font2);
     font-weight: 600;
     font-size: 32px;
+  }
+  h2 {
+    font-family: var(--font2);
+    font-weight: 400;
+    font-size: 32px;
+  }
+  h3 {
+    font-family: var(--font2);
+    font-weight: 500;
+    font-size: 24px;
+  }
+  h4 {
+    font-weight: 500;
+    font-size: 18px;
+  }
+  h5 {
+    font-size: 16px;
+  }
+  ul {
+    padding-bottom: 10px;
+    li {
+      margin-bottom: 10px;
+      position: relative;
+      padding-left: 32px;
+      &:before {
+        color: var(--bluelight);
+        position: absolute;
+        line-height: 20px;
+        content: "▹";
+        left: 1px;
+      }
+    }
   }
 }

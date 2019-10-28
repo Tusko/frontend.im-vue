@@ -3,14 +3,14 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   configureWebpack: {
-    // plugins: [
-    //   new GoogleFontsPlugin({
-    //     fonts: [
-    //       { family: "Source Sans Pro", variants: ["300", "400", "600"] },
-    //       { family: "Source Code Pro", variants: ["400"] }
-    //     ]
-    //   })
-    // ],
+    plugins: [
+      //   new GoogleFontsPlugin({
+      //     fonts: [
+      //       { family: "Source Sans Pro", variants: ["300", "400", "600"] },
+      //       { family: "Source Code Pro", variants: ["400"] }
+      //     ]
+      //   })
+    ],
     optimization: {
       runtimeChunk: true,
       minimize: true,

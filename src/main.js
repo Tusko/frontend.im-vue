@@ -1,14 +1,10 @@
 import Vue from "vue";
-import App from "./App.vue";
+import App from "./App";
 import router from "./router";
 import store from "./store";
-import Dayjs from "vue-dayjs";
+import "vue-octicon/icons";
 
 Vue.config.productionTip = false;
-
-Vue.use(Dayjs, {
-  lang: "en"
-});
 
 new Vue({
   router,

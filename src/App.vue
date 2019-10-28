@@ -22,9 +22,12 @@ export default {
   },
   beforeMount() {
     this.fetchGitUser("tusko");
+    this.fetchGitRepos("tusko").then(() => {
+      this.fetchFrontPage();
+    });
   },
   methods: {
-    ...mapActions(["fetchGitUser"])
+    ...mapActions(["fetchGitUser", "fetchGitRepos", "fetchFrontPage"])
   }
 };
 </script>

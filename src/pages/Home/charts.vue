@@ -1,7 +1,7 @@
 <template>
   <section class="charts content">
-    <div class="row">
-      <div class="charts-wrap">
+    <div class="charts-row row">
+      <div class="charts-wrap" data-aos-offset="150" data-aos="fade-up">
         <h2>Coding activity</h2>
         <line-chart
           v-if="lineChart.collection"
@@ -10,7 +10,7 @@
           :styles="styles"
         />
       </div>
-      <div class="charts-wrap">
+      <div class="charts-wrap" data-aos-offset="150" data-aos="fade-up">
         <h2>Stats per language</h2>
         <pie-chart
           v-if="pieChart.collection"
@@ -51,7 +51,9 @@ export default {
         title: false,
         layout: {
           padding: {
-            bottom: 20,
+            bottom: 30,
+            right: 0,
+            left: 0,
             top: 20
           }
         },
@@ -103,13 +105,25 @@ export default {
         title: false,
         layout: {
           padding: {
-            bottom: 20,
+            bottom: 40,
             top: 20
           }
         },
         pieceLabel: {
           mode: "percentage",
           precision: 1
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              return (
+                data["labels"][tooltipItem["index"]] +
+                ": " +
+                data["datasets"][0]["data"][tooltipItem["index"]] +
+                "%"
+              );
+            }
+          }
         }
       }
     }
@@ -196,11 +210,13 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .charts {
+  position: relative;
   margin-top: -44px;
-  .row {
-    grid-template-columns: repeat(auto-fill, minmax(49%, 1fr));
+  z-index: 1;
+  &-row {
+    grid-template-columns: repeat(auto-fit, minmax(49%, 1fr));
     display: grid;
     gap: 0px 2%;
   }

@@ -1,0 +1,53 @@
+.experience {
+  margin-bottom: 5vw;
+  > div {
+    align-items: flex-start;
+    display: flex;
+    > article {
+      background: var(--white);
+      padding: 14px 20px 1px;
+      flex: 1;
+    }
+  }
+  &-tabs {
+    border-left: 1px solid var(--bluelight);
+    margin-right: 20px;
+    position: relative;
+    flex-basis: 300px;
+    &-item {
+      font-family: var(--font2);
+      padding: 10px 20px;
+      font-size: 20px;
+      cursor: pointer;
+      display: block;
+      &.is-active {
+        color: var(--blue);
+      }
+    }
+    > i {
+      transition: transform 0.2s cubic-bezier(0.1, -0.48, 0.74, 1.37);
+      background: var(--blue);
+      will-change: transform;
+      position: absolute;
+      height: 45px;
+      width: 3px;
+      left: -2px;
+      top: 0;
+    }
+  }
+  &-details {
+    > * {
+      margin-bottom: 16px;
+    }
+    h4 {
+      margin-bottom: 40px;
+      small {
+        font-size: 13px;
+        opacity: 0.6;
+      }
+    }
+    a {
+      color: var(--bluelight);
+    }
+  }
+}
