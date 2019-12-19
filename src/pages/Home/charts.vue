@@ -129,29 +129,13 @@ export default {
     }
   }),
   methods: {
-    ...mapActions(["fetchWakatime"])
-  },
-  computed: {
-    colorfulGradient() {
-      const context = document.createElement("canvas").getContext("2d");
-
-      const bg = context.createLinearGradient(0, 10, 0, 250);
-      bg.addColorStop(0, "#0070f3");
-      bg.addColorStop(1, "#3f51b5");
-
-      const border = context.createLinearGradient(0, 20, 0, 200);
-      border.addColorStop(1, "#bbb");
-      border.addColorStop(0, "#ccc");
-      return [bg, border];
-    }
-  },
-  async mounted() {
-    // fetch and generate lineChart
-    await this.fetchWakatime("activity").then(res => {
+    ...mapActions(["fetchWakatime"]),
+    generateActivityChart(data) {
       const lineLabels = [];
       const lineData = [];
 
-      this.lines = res.data.data;
+      this.$storage.set("activity", data);
+      this.lines = data;
 
       this.lines.forEach(el => {
         lineLabels.push([
@@ -174,10 +158,8 @@ export default {
           }
         ]
       });
-    });
-
-    //fetch and generate languages PieChart
-    await this.fetchWakatime("langs").then(res => {
+    },
+    generateLangChart(data) {
       const pieLabels = [];
       const pieData = [];
       const pieColors = [];
@@ -186,7 +168,8 @@ export default {
         GitHubColors.colors["SCSS"].color = "#CF649A";
       }
 
-      this.langs = res.data.data.filter(el => el.percent > 0.5);
+      this.$storage.set("langs", data);
+      this.langs = data.filter(el => el.percent > 0.5);
 
       this.langs.forEach(el => {
         pieLabels.push(el.name);
@@ -205,7 +188,42 @@ export default {
           }
         ]
       });
-    });
+    }
+  },
+  computed: {
+    colorfulGradient() {
+      const context = document.createElement("canvas").getContext("2d");
+
+      const bg = context.createLinearGradient(0, 10, 0, 250);
+      bg.addColorStop(0, "#0070f3");
+      bg.addColorStop(1, "#3f51b5");
+
+      const border = context.createLinearGradient(0, 20, 0, 200);
+      border.addColorStop(1, "#bbb");
+      border.addColorStop(0, "#ccc");
+      return [bg, border];
+    }
+  },
+  async mounted() {
+    // fetch and generate lineChart
+    const activityData = this.$storage.get("activity");
+    if (activityData) {
+      await this.generateActivityChart(activityData);
+    } else {
+      await this.fetchWakatime("activity").then(res =>
+        this.generateActivityChart(res.data.data)
+      );
+    }
+
+    //fetch and generate languages PieChart
+    const langsData = this.$storage.get("langs");
+    if (langsData) {
+      await this.generateLangChart(langsData);
+    } else {
+      await this.fetchWakatime("langs").then(res =>
+        this.generateLangChart(res.data.data)
+      );
+    }
   }
 };
 </script>

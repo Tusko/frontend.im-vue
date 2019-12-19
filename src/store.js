@@ -1,11 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import { orderBy, has, map, flatMap } from "lodash";
+import { orderBy, has } from "lodash";
 
 const SAVE_GIT_USER = "SAVE_GIT_USER";
 const SAVE_GIT_REPOS = "SAVE_GIT_REPOS";
 const SET_EXPERIENCE = "SET_EXPERIENCE";
+const SET_PROJECTS = "SET_PROJECTS";
 
 Vue.use(Vuex);
 
@@ -14,7 +15,8 @@ export default new Vuex.Store({
   state: {
     gitUser: null,
     gitRepos: null,
-    experience: null
+    experience: null,
+    projects: null
   },
   mutations: {
     [SAVE_GIT_USER](state, payload) {
@@ -25,12 +27,16 @@ export default new Vuex.Store({
     },
     [SET_EXPERIENCE](state, payload) {
       state.experience = { ...payload };
+    },
+    [SET_PROJECTS](state, payload) {
+      state.projects = { ...payload };
     }
   },
   getters: {
     getGitUser: state => state.gitUser,
     getGitRepos: state => state.gitRepos,
-    getExperience: state => state.experience
+    getExperience: state => state.experience,
+    getProjects: state => state.projects
   },
   actions: {
     fetchGitUser: async ({ commit }, user) => {
@@ -45,6 +51,9 @@ export default new Vuex.Store({
         });
     },
     fetchGitRepos: async ({ commit, state }, user) => {
+      const repos = Vue.$storage.get("repos");
+      if (repos) return commit(SAVE_GIT_REPOS, repos);
+
       await axios
         .get(
           `https://api.github.com/users/${user}/repos?per_page=99&access_token=${process.env.VUE_APP_GIT_TOKEN}`,
@@ -70,7 +79,10 @@ export default new Vuex.Store({
             ["desc", "desc", "desc"]
           );
 
-          commit(SAVE_GIT_REPOS, sortedData.splice(1, 8));
+          const splicedRepost = sortedData.splice(1, 8);
+
+          Vue.$storage.set("repos", splicedRepost);
+          commit(SAVE_GIT_REPOS, splicedRepost);
         });
     },
     fetchWakatime: async (context, type) => {
@@ -79,16 +91,29 @@ export default new Vuex.Store({
       );
     },
     fetchFrontPage({ commit }) {
+      const experience = Vue.$storage.get("experience");
+      if (experience) return commit("SET_EXPERIENCE", experience);
+
+      axios
+        .get(`${process.env.VUE_APP_API}/wp-json/acf/v3/options/options`)
+        .then(res => {
+          if (has(res.data.acf, "experience")) {
+            commit(SET_EXPERIENCE, res.data.acf.experience);
+            Vue.$storage.set("experience", res.data.acf.experience);
+          }
+        });
+    },
+    fetchProjects({ commit }) {
+      const projects = Vue.$storage.get("projects");
+      if (projects) return commit(SET_PROJECTS, projects);
+
       axios
         .get(
-          `${process.env.VUE_APP_API}/singletons/get/homepage?token=${process.env.VUE_APP_API_TOKEN}`
+          `${process.env.VUE_APP_API}/wp-json/wp/v2/posts?_minimal&per_page=100`
         )
         .then(res => {
-          if (has(res.data, "Experience"))
-            commit(
-              "SET_EXPERIENCE",
-              flatMap(map(res.data.Experience, a => a.value))
-            );
+          commit(SET_EXPERIENCE, res.data);
+          Vue.$storage.set("projects", res.data);
         });
     }
   }

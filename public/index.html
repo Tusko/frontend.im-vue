@@ -16,5 +16,39 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-22102538-32"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "UA-22102538-32");
+      window.fbAsyncInit = function() {
+        FB.init({ xfbml: true, version: "v3.2" });
+      };
+      (function(d, s, id) {
+        var js,
+          fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js";
+        fjs.parentNode.insertBefore(js, fjs);
+      })(document, "script", "facebook-jssdk");
+    </script>
+    <div id="fb-root"></div>
+    <div
+      class="fb-customerchat"
+      attribution="setup_tool"
+      page_id="1785502284865340"
+      theme_color="#0084ff"
+      logged_in_greeting="Feel free to contact me"
+      logged_out_greeting="Feel free to contact me"
+    ></div>
+    <!-- <script src="https://code.responsivevoice.org/responsivevoice.js?key=5SeHgPJC"></script> -->
   </body>
 </html>

@@ -42,6 +42,7 @@
     <charts />
     <git-grid />
     <experience />
+    <!-- <featured-projects /> -->
   </main>
 </template>
 
@@ -54,6 +55,7 @@ export default {
     "scroll-icon": () => import("@/components/scrollIcon"),
     "git-grid": () => import("@/components/gitCards/grid"),
     experience: () => import("@/components/experience"),
+    // "featured-projects": () => import("@/components/featuredProjects"),
     charts: () => import("./charts")
   },
   computed: {

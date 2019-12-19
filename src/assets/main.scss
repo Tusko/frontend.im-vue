@@ -4,12 +4,14 @@ body {
   font: 400 16px var(--font);
   background: var(--light);
   color: var(--dark);
+  min-height: 100vh;
 }
 
 #app {
   flex-direction: column;
   display: flex;
   main {
+    min-height: 100vh;
     overflow: hidden;
     flex: 1 0 auto;
     width: 100%;

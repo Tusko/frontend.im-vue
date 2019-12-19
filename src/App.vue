@@ -2,6 +2,9 @@
   <div id="app">
     <router-view />
     <app-footer />
+    <transition name="fade">
+      <preloader v-if="loading" />
+    </transition>
   </div>
 </template>
 
@@ -14,20 +17,31 @@ import { mapActions } from "vuex";
 
 export default {
   components: {
-    "app-footer": () => import("./components/footer")
+    "app-footer": () => import("./components/footer"),
+    preloader: () => import("./components/preloader")
   },
+  data: () => ({
+    loading: true
+  }),
   created() {
     setColorScheme();
     AOS.init();
   },
-  beforeMount() {
-    this.fetchGitUser("tusko");
-    this.fetchGitRepos("tusko").then(() => {
-      this.fetchFrontPage();
+  async beforeMount() {
+    await this.fetchGitUser("tusko");
+    await this.fetchGitRepos("tusko").then(async () => {
+      await this.fetchFrontPage();
+      await this.fetchProjects();
+      this.loading = false;
     });
   },
   methods: {
-    ...mapActions(["fetchGitUser", "fetchGitRepos", "fetchFrontPage"])
+    ...mapActions([
+      "fetchGitUser",
+      "fetchGitRepos",
+      "fetchFrontPage",
+      "fetchProjects"
+    ])
   }
 };
 </script>

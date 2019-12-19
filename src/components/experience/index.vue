@@ -34,6 +34,7 @@
               >
               <small> / {{ v.company_desc }}</small>
             </h4>
+            <h6>{{ v.years }}</h6>
             <h5>Responsibilities:</h5>
             <div v-html="v.list"></div>
           </div>
