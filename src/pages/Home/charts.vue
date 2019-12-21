@@ -138,7 +138,7 @@ export default {
       this.$storage.set("activity", data);
       this.lines = data;
 
-      this.$$nextTick(() => {
+      this.$nextTick(() => {
         forEach(this.lines, el => {
           lineLabels.push([
             el.range.date.replace(/-/g, "."),
