@@ -131,12 +131,12 @@ export default {
   }),
   methods: {
     ...mapActions(["fetchWakatime"]),
-    generateActivityChart(data) {
+    generateActivityChart(activityObj) {
       const lineLabels = [];
       const lineData = [];
 
-      this.$storage.set("activity", data);
-      this.lines = data;
+      this.$storage.set("activity", activityObj);
+      this.lines = activityObj;
 
       this.$nextTick(() => {
         forEach(this.lines, el => {
@@ -162,7 +162,7 @@ export default {
         });
       });
     },
-    generateLangChart(data) {
+    generateLangChart(langObj) {
       const pieLabels = [];
       const pieData = [];
       const pieColors = [];
@@ -171,8 +171,8 @@ export default {
         GitHubColors.colors["SCSS"].color = "#CF649A";
       }
 
-      this.$storage.set("langs", data);
-      this.langs = data.filter(el => el.percent > 0.5);
+      this.$storage.set("langs", langObj);
+      this.langs = langObj.filter(el => el.percent > 0.5);
 
       this.langs.forEach(el => {
         pieLabels.push(el.name);
