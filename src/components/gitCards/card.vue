@@ -16,8 +16,8 @@
     <p class="git-card-desc">{{ repo.description }}</p>
 
     <div class="git-card-stats">
-      <div class="git-card-stats-color">
-        <i :style="{ backgroundColor: getGitColor(repo.language) }"></i>
+      <div v-if="repo.language" class="git-card-stats-color">
+        <i :style="{ backgroundColor: getGitColor(repo.language) }" />
         {{ repo.language }}
       </div>
 

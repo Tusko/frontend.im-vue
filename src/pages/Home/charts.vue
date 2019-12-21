@@ -210,9 +210,9 @@ export default {
     if (activityData) {
       await this.generateActivityChart(activityData);
     } else {
-      await this.fetchWakatime("activity").then(res =>
-        this.generateActivityChart(res.data.data)
-      );
+      await this.fetchWakatime("activity").then(res => {
+        this.generateActivityChart(res.data.data);
+      });
     }
 
     //fetch and generate languages PieChart

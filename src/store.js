@@ -66,7 +66,9 @@ export default new Vuex.Store({
         .then(r => {
           const data = r.data.map(e => {
             e.unix = new Date(e.updated_at).getTime();
+            console.log(e);
             if (
+              !e.private &&
               e.owner.id === state.gitUser.id &&
               !e.name.includes("frontend.im")
             )
