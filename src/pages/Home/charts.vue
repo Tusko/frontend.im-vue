@@ -26,6 +26,7 @@
 <script>
 const GitHubColors = require("github-colors");
 import { mapActions } from "vuex";
+import { forEach } from "lodash";
 
 export default {
   name: "Charts",
@@ -137,26 +138,28 @@ export default {
       this.$storage.set("activity", data);
       this.lines = data;
 
-      this.lines.forEach(el => {
-        lineLabels.push([
-          el.range.date.replace(/-/g, "."),
-          el.grand_total.text
-        ]);
-        lineData.push(el.grand_total.total_seconds);
-      });
+      this.$$nextTick(() => {
+        forEach(this.lines, el => {
+          lineLabels.push([
+            el.range.date.replace(/-/g, "."),
+            el.grand_total.text
+          ]);
+          lineData.push(el.grand_total.total_seconds);
+        });
 
-      this.$set(this.lineChart, "collection", {
-        labels: lineLabels,
-        datasets: [
-          {
-            data: lineData,
-            backgroundColor: this.colorfulGradient[0],
-            borderColor: this.colorfulGradient[1],
-            borderWidth: 2,
-            pointRadius: 3,
-            fill: true
-          }
-        ]
+        this.$set(this.lineChart, "collection", {
+          labels: lineLabels,
+          datasets: [
+            {
+              data: lineData,
+              backgroundColor: this.colorfulGradient[0],
+              borderColor: this.colorfulGradient[1],
+              borderWidth: 2,
+              pointRadius: 3,
+              fill: true
+            }
+          ]
+        });
       });
     },
     generateLangChart(data) {
