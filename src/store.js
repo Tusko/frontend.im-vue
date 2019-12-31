@@ -66,7 +66,6 @@ export default new Vuex.Store({
         .then(r => {
           const data = r.data.map(e => {
             e.unix = new Date(e.updated_at).getTime();
-            console.log(e);
             if (
               !e.private &&
               e.owner.id === state.gitUser.id &&
@@ -88,9 +87,13 @@ export default new Vuex.Store({
         });
     },
     fetchWakatime: async (context, type) => {
-      return await axios.get(
-        process.env[`VUE_APP_WAKATIME_${type.toUpperCase()}`]
-      );
+      const url = process.env[`VUE_APP_WAKATIME_${type.toUpperCase()}`];
+      return await axios.get(url, {
+        headers: {
+          "X-Final-Url": url,
+          "X-Request-Url": url
+        }
+      });
     },
     fetchFrontPage({ commit }) {
       const experience = Vue.$storage.get("experience");
@@ -114,7 +117,7 @@ export default new Vuex.Store({
           `${process.env.VUE_APP_API}/wp-json/wp/v2/posts?_minimal&per_page=100`
         )
         .then(res => {
-          commit(SET_EXPERIENCE, res.data);
+          commit(SET_PROJECTS, res.data);
           Vue.$storage.set("projects", res.data);
         });
     }

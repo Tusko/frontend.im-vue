@@ -26,7 +26,7 @@
 <script>
 const GitHubColors = require("github-colors");
 import { mapActions } from "vuex";
-import { forEach } from "lodash";
+import { forEach, filter, cloneDeep } from "lodash";
 
 export default {
   name: "Charts",
@@ -171,25 +171,29 @@ export default {
         GitHubColors.colors["SCSS"].color = "#CF649A";
       }
 
-      this.$storage.set("langs", langObj);
-      this.langs = langObj.filter(el => el.percent > 0.5);
+      const filterLangs = filter(langObj, el => el.percent > 0.5);
 
-      this.langs.forEach(el => {
-        pieLabels.push(el.name);
-        pieData.push(el.percent);
-        const langExt = el.name.split(".");
-        const langData = GitHubColors.get(langExt[0]);
-        pieColors.push(langData ? langData.color : "#1a1e22");
-      });
+      this.$storage.set("langs", filterLangs);
+      this.langs = filterLangs;
 
-      this.$set(this.pieChart, "collection", {
-        labels: pieLabels,
-        datasets: [
-          {
-            backgroundColor: pieColors,
-            data: pieData
-          }
-        ]
+      this.$nextTick(() => {
+        forEach(this.langs, el => {
+          pieLabels.push(el.name);
+          pieData.push(el.percent);
+          const langExt = el.name.split(".");
+          const langData = GitHubColors.get(langExt[0]);
+          pieColors.push(langData ? langData.color : "#1a1e22");
+        });
+
+        this.$set(this.pieChart, "collection", {
+          labels: pieLabels,
+          datasets: [
+            {
+              backgroundColor: pieColors,
+              data: pieData
+            }
+          ]
+        });
       });
     }
   },
@@ -207,14 +211,14 @@ export default {
       return [bg, border];
     }
   },
-  async mounted() {
+  async beforeMount() {
     // fetch and generate lineChart
     const activityData = this.$storage.get("activity");
     if (activityData) {
       await this.generateActivityChart(activityData);
     } else {
       await this.fetchWakatime("activity").then(res => {
-        this.generateActivityChart(res.data.data);
+        this.generateActivityChart(cloneDeep(res.data.data));
       });
     }
 
@@ -223,9 +227,9 @@ export default {
     if (langsData) {
       await this.generateLangChart(langsData);
     } else {
-      await this.fetchWakatime("langs").then(res =>
-        this.generateLangChart(res.data.data)
-      );
+      await this.fetchWakatime("langs").then(res => {
+        this.generateLangChart(cloneDeep(res.data.data));
+      });
     }
   }
 };
