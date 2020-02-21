@@ -41,4 +41,8 @@ export default {
   display: grid;
   gap: 20px;
 }
+
+@media screen and (max-width: 1400px) {
+  margin: 0 auto;
+}
 </style>

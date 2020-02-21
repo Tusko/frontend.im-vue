@@ -12,7 +12,6 @@
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./assets/main.scss";
-import setColorScheme from "./components/colorSchema";
 import { mapActions } from "vuex";
 
 export default {
@@ -24,7 +23,6 @@ export default {
     loading: true
   }),
   created() {
-    setColorScheme();
     AOS.init();
   },
   async beforeMount() {

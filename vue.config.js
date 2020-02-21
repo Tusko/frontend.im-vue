@@ -32,6 +32,7 @@ module.exports = {
       ]
     },
     devServer: {
+      https: true,
       proxy: {
         "/wakatime": {
           target: "https://wakatime.com",
