@@ -14,7 +14,7 @@ export const webp = {
     async checkWebP() {
       if (!self.createImageBitmap) return false;
       const webpData =
-        "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoCAAEAAQAcJaQAA3AA/v3AgAA=";
+        "data:image/webp;base64,UklGRhIAAABXRUJQVlA4TAYAAAAvQWxvAGs=";
 
       const blob = await fetch(webpData).then(r => r.blob());
       return createImageBitmap(blob).then(
