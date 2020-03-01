@@ -15,7 +15,7 @@ const config = {
   localRoot: __dirname + "/dist",
   remoteRoot: "/",
   // include: ['*', '**/*'],      // this would upload everything except dot files
-  include: ["*"],
+  include: ["*", ".htaccess"],
   // e.g. exclude sourcemaps, and ALL files in node_modules (including dot files)
   exclude: ["**/*.map", "node_modules/**", "node_modules/**/.*"],
   // delete ALL existing files at destination before uploading, if true

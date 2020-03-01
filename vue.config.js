@@ -5,7 +5,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const webpackConfig = {
   productionSourceMap: false,
   configureWebpack: {
-    devtool: "eval-cheap-module-source-map",
+    devtool: "eval-source-map",
     plugins: [
       new GoogleFontsPlugin({
         fonts: [

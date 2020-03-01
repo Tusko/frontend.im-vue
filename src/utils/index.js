@@ -1,24 +1,35 @@
 import { debounce } from "lodash";
 const anime = require("animejs");
-const path = require("path");
 
 export const webp = {
+  data: () => ({
+    supportWepb: false
+  }),
+  async created() {
+    if (await this.checkWebP()) {
+      this.supportWepb = true;
+    }
+  },
   methods: {
-    checkWebP(cb) {
-      const webP = new Image();
-      webP.src =
-        "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA";
-      webP.onload = webP.onerror = function() {
-        cb(webP.height == 2);
-      };
+    async checkWebP() {
+      if (!self.createImageBitmap) return false;
+      const webpData =
+        "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoCAAEAAQAcJaQAA3AA/v3AgAA=";
+
+      const blob = await fetch(webpData).then(r => r.blob());
+      return createImageBitmap(blob).then(
+        () => true,
+        () => false
+      );
     },
     webpUrl(url) {
-      if (this.checkWebP) {
+      if (this.supportWepb) {
         const pos = url.lastIndexOf(".");
         const webpUrl = url.substr(0, pos < 0 ? url.length : pos);
         return webpUrl + ".webp";
+      } else {
+        return url;
       }
-      return url;
     }
   }
 };
