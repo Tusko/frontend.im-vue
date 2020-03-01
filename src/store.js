@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import { orderBy, has } from "lodash";
+import { orderBy, has, filter } from "lodash";
 
 const SAVE_GIT_USER = "SAVE_GIT_USER";
 const SAVE_GIT_REPOS = "SAVE_GIT_REPOS";
@@ -64,14 +64,11 @@ export default new Vuex.Store({
           }
         )
         .then(r => {
-          const data = r.data.map(e => {
+          const data = filter(r.data, e => {
             e.unix = new Date(e.updated_at).getTime();
-            if (
-              !e.private &&
-              e.owner.id === state.gitUser.id &&
-              !e.name.includes("frontend.im")
-            )
+            if (!e.private && !e.fork && !e.name.includes("frontend.im")) {
               return e;
+            }
           });
 
           const sortedData = orderBy(

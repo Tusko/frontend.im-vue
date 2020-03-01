@@ -244,6 +244,12 @@ export default {
     grid-template-columns: repeat(auto-fit, minmax(49%, 1fr));
     display: grid;
     gap: 0px 2%;
+    @media screen and (max-width: 960px) {
+      display: block;
+      > div + div {
+        margin-top: 40px;
+      }
+    }
   }
   &-wrap {
     box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 30px -15px;

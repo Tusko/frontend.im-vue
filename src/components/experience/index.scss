@@ -3,6 +3,9 @@
   > div {
     align-items: flex-start;
     display: flex;
+    @media screen and (max-width: 767px) {
+      display: block;
+    }
     > article {
       background: var(--white);
       padding: 14px 20px 1px;
@@ -14,6 +17,13 @@
     margin-right: 20px;
     position: relative;
     flex-basis: 300px;
+    @media screen and (max-width: 1023px) {
+      flex-basis: 200px;
+    }
+    @media screen and (max-width: 767px) {
+      margin-right: 0;
+      margin-bottom: 40px;
+    }
     &-item {
       font-family: var(--font2);
       padding: 10px 20px;

@@ -38,11 +38,14 @@
         </article>
       </section>
       <scroll-icon />
+      <scene />
     </div>
-    <charts />
-    <git-grid />
-    <experience />
-    <!-- <featured-projects /> -->
+    <slot v-if="lazyComponent">
+      <charts />
+      <git-grid />
+      <experience />
+      <featured-projects />
+    </slot>
   </main>
 </template>
 
@@ -51,15 +54,29 @@ import { mapGetters } from "vuex";
 export default {
   name: "Home",
   components: {
+    "featured-projects": () => import("@/components/featuredProjects"),
     Octicon: () => import("vue-octicon/components/Octicon"),
     "scroll-icon": () => import("@/components/scrollIcon"),
     "git-grid": () => import("@/components/gitCards/grid"),
     experience: () => import("@/components/experience"),
-    // "featured-projects": () => import("@/components/featuredProjects"),
+    scene: () => import("@/components/scene"),
     charts: () => import("./charts")
   },
   computed: {
     ...mapGetters(["getGitUser"])
+  },
+  data: () => ({
+    lazyComponent: false
+  }),
+  mounted() {
+    if (this.getGitUser) {
+      this.lazyComponent = true;
+    }
+  },
+  watch: {
+    getGitUser() {
+      this.lazyComponent = true;
+    }
   }
 };
 </script>

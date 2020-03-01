@@ -1,6 +1,6 @@
 <template>
   <section v-if="getExperience" class="experience row content">
-    <h2 data-aos="fade-up">Where I've Worked</h2>
+    <h2 data-aos="fade-up">Experience</h2>
     <div data-aos="fade-up" data-aos-offet="100">
       <nav class="experience-tabs">
         <span

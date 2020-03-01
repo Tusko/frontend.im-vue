@@ -1,0 +1,73 @@
+.projects {
+  &-grid {
+    padding-bottom: 0;
+    flex-wrap: wrap;
+    display: flex;
+    @media screen and (max-width: 640px) {
+      display: block;
+    }
+    &-item {
+      position: relative;
+      overflow: hidden;
+      flex-basis: 25%;
+      @media screen and (max-width: 1200px) {
+        flex-basis: 33.333%;
+      }
+      @media screen and (max-width: 1023px) {
+        flex-basis: 50%;
+      }
+      figure {
+        -webkit-filter: blur(5px);
+        filter: blur(5px);
+        transition: filter 1000ms, -webkit-filter 1000ms, transform 1s ease;
+        transform: scale(1.25);
+        &:after {
+          padding-bottom: 100%;
+          display: block;
+          content: "";
+        }
+        &.lazyloaded {
+          -webkit-filter: blur(0);
+          filter: blur(0);
+          transform: scale(1);
+        }
+      }
+      &:hover {
+        > div {
+          transform: translateY(-100%);
+        }
+      }
+    }
+    &-content {
+      transition: transform 0.2s cubic-bezier(0.14, 0.31, 1, 1);
+      box-shadow: 0 -1px 4px 0 rgba(0, 0, 0, 0.05);
+      transform: translateY(0%);
+      background: var(--white);
+      will-change: transform;
+      text-align: center;
+      position: absolute;
+      padding: 10px;
+      top: 100%;
+      right: 0;
+      left: 0;
+      h4 {
+        font-family: var(--font2);
+
+        > a {
+          color: var(--bluelight);
+          text-decoration: none;
+        }
+      }
+      h5 {
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 10px;
+        margin: 10px;
+      }
+      time {
+        text-transform: uppercase;
+        font-size: 10px;
+      }
+    }
+  }
+}

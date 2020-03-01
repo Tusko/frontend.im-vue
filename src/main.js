@@ -6,6 +6,23 @@ import "vue-octicon/icons";
 import { Vue2Storage } from "vue2-storage";
 import "es6-promise/auto";
 import BabelPolyfill from "babel-polyfill";
+import "lazysizes";
+
+window.lazySizesConfig = window.lazySizesConfig || {};
+lazySizesConfig.loadMode = 1;
+lazySizesConfig.init = false;
+lazySizesConfig.ricTimeout = 500;
+lazySizesConfig.expand = 100;
+
+//add simple support for background images:
+document.addEventListener("lazybeforeunveil", function(e) {
+  const el = e.target;
+  const bg = el.getAttribute("data-bg");
+  if (bg) {
+    el.style.backgroundImage = "url(" + bg + ")";
+    el.removeAttribute("data-bg");
+  }
+});
 
 Vue.use(Vue2Storage, {
   prefix: "app_",

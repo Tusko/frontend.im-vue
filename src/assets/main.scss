@@ -7,6 +7,12 @@ body {
   min-height: 100vh;
 }
 
+.cover {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
 #app {
   flex-direction: column;
   display: flex;
@@ -58,5 +64,11 @@ body {
         left: 1px;
       }
     }
+  }
+}
+
+.projects {
+  small {
+    display: block;
   }
 }

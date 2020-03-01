@@ -1,5 +1,5 @@
 <template>
-  <div class="content git-content" v-if="getGitRepos">
+  <div class="content git-content row" v-if="getGitRepos">
     <h2 data-aos="fade-up">Featured repos</h2>
     <div class="git-grid">
       <gitCard
@@ -30,19 +30,26 @@ export default {
 <style lang="scss" computed>
 .git-content {
   margin-top: 4.75vw;
-  h2 {
+  @media screen and (min-width: 1300px) {
     margin-right: 5vw;
     margin-left: 5vw;
+    max-width: none;
+    width: auto;
   }
 }
 .git-grid {
   grid-template-columns: repeat(auto-fit, minmax(calc(25% - 20px), 1fr));
-  margin: 0 5vw 5vw;
+  margin: 0 0 5vw;
   display: grid;
   gap: 20px;
-}
-
-@media screen and (max-width: 1400px) {
-  margin: 0 auto;
+  @media screen and (max-width: 1299px) {
+    grid-template-columns: repeat(auto-fit, minmax(calc(50% - 20px), 1fr));
+  }
+  @media screen and (max-width: 767px) {
+    display: block;
+    > a {
+      margin-top: 20px;
+    }
+  }
 }
 </style>

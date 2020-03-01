@@ -2,9 +2,9 @@
   <div id="app">
     <router-view />
     <app-footer />
-    <transition name="fade">
+    <!-- <transition name="fade">
       <preloader v-if="loading" />
-    </transition>
+    </transition> -->
   </div>
 </template>
 
@@ -16,13 +16,15 @@ import { mapActions } from "vuex";
 
 export default {
   components: {
-    "app-footer": () => import("./components/footer"),
-    preloader: () => import("./components/preloader")
+    "app-footer": () => import("./components/footer")
+    // preloader: () => import("./components/preloader")
   },
-  data: () => ({
-    loading: true
-  }),
+  // data: () => ({
+  //   loading: true
+  // }),
   created() {
+    lazySizes.init();
+
     AOS.init();
   },
   async beforeMount() {
@@ -30,7 +32,7 @@ export default {
     await this.fetchGitRepos("tusko").then(async () => {
       await this.fetchFrontPage();
       await this.fetchProjects();
-      this.loading = false;
+      // this.loading = false;
     });
   },
   methods: {
