@@ -66,6 +66,7 @@ export default new Vuex.Store({
         .then(r => {
           const data = filter(r.data, e => {
             e.unix = new Date(e.updated_at).getTime();
+            console.log(e);
             if (!e.private && !e.fork && !e.name.includes("frontend.im")) {
               return e;
             }
@@ -77,7 +78,7 @@ export default new Vuex.Store({
             ["desc", "desc", "desc"]
           );
 
-          const splicedRepost = sortedData.splice(1, 8);
+          const splicedRepost = sortedData.splice(0, 8);
 
           Vue.$storage.set("repos", splicedRepost);
           commit(SAVE_GIT_REPOS, splicedRepost);
