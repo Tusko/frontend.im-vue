@@ -3,7 +3,7 @@
     <div v-if="getGitUser" class="me">
       <section class="row inrow">
         <figure class="me-avatar row" data-aos="zoom-in-up">
-          <img :src="getGitUser.avatar_url" alt="getGitUser.name" />
+          <img :src="getGitUser.avatar_url" :alt="getGitUser.name" />
         </figure>
         <article class="content" data-aos="zoom-in-up" data-aos-delay="300">
           <h1>{{ getGitUser.name }}</h1>
