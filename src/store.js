@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import {orderBy, has, filter} from "lodash";
+import { orderBy, has, filter } from "lodash";
 
 const SAVE_GIT_USER = "SAVE_GIT_USER";
 const SAVE_GIT_REPOS = "SAVE_GIT_REPOS";
@@ -19,17 +19,17 @@ export default new Vuex.Store({
     projects: null
   },
   mutations: {
-    [SAVE_GIT_USER] (state, payload) {
-      state.gitUser = {...payload};
+    [SAVE_GIT_USER](state, payload) {
+      state.gitUser = { ...payload };
     },
-    [SAVE_GIT_REPOS] (state, payload) {
-      state.gitRepos = {...payload};
+    [SAVE_GIT_REPOS](state, payload) {
+      state.gitRepos = { ...payload };
     },
-    [SET_EXPERIENCE] (state, payload) {
-      state.experience = {...payload};
+    [SET_EXPERIENCE](state, payload) {
+      state.experience = { ...payload };
     },
-    [SET_PROJECTS] (state, payload) {
-      state.projects = {...payload};
+    [SET_PROJECTS](state, payload) {
+      state.projects = { ...payload };
     }
   },
   getters: {
@@ -39,7 +39,7 @@ export default new Vuex.Store({
     getProjects: state => state.projects
   },
   actions: {
-    fetchGitUser: async ({commit}, user) => {
+    fetchGitUser: async ({ commit }, user) => {
       await axios
         .get(`https://api.github.com/users/${user}`, {
           headers: {
@@ -50,7 +50,7 @@ export default new Vuex.Store({
           commit(SAVE_GIT_USER, r.data);
         });
     },
-    fetchGitRepos: async ({commit, state}, user) => {
+    fetchGitRepos: async ({ commit, state }, user) => {
       const repos = Vue.$storage.get("repos");
       if (repos) return commit(SAVE_GIT_REPOS, repos);
 
@@ -92,7 +92,7 @@ export default new Vuex.Store({
         }
       });
     },
-    fetchFrontPage ({commit}) {
+    fetchFrontPage({ commit }) {
       const experience = Vue.$storage.get("experience");
       if (experience) return commit("SET_EXPERIENCE", experience);
 
@@ -105,7 +105,7 @@ export default new Vuex.Store({
           }
         });
     },
-    fetchProjects ({commit}) {
+    fetchProjects({ commit }) {
       const projects = Vue.$storage.get("projects");
       if (projects) return commit(SET_PROJECTS, projects);
 

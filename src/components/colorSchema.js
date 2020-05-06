@@ -1,4 +1,4 @@
-function activateDarkMode () {
+function activateDarkMode() {
   const rootElement = document.querySelector(":root");
   const darkTheme = {
     "--bg": "rgb(26, 30, 34)",
@@ -9,7 +9,7 @@ function activateDarkMode () {
   }
 }
 
-function activateLightMode () {
+function activateLightMode() {
   const rootElement = document.querySelector(":root");
   const lightTheme = {
     "--font": "Source Code Pro",
@@ -34,7 +34,7 @@ function activateLightMode () {
  * If browser supports "prefers-color-scheme" it will respect the setting for light or dark mode
  * otherwise it will set a dark theme during night time
  */
-function setColorScheme () {
+function setColorScheme() {
   const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const isLightMode = window.matchMedia("(prefers-color-scheme: light)")
     .matches;
