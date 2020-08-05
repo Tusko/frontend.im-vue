@@ -1,6 +1,6 @@
 const FtpDeploy = require("ftp-deploy");
 const ftpDeploy = new FtpDeploy();
-require("dotenv").config({ path: `./.env.local` });
+require("dotenv").config({path: `./.env.local`});
 
 const log = (...args) => console.log("→", ...args);
 
@@ -40,10 +40,10 @@ ftpDeploy.on("uploading", data => {
   );
 });
 
-ftpDeploy.on("upload-error", function(data) {
+ftpDeploy.on("upload-error", function (data) {
   log("❌", " DEPLOY Error", data.err);
 });
 
-// ftpDeploy.on("log", function(data) {
-//   log("🚚", " LOG", data);
-// });
+ftpDeploy.on("log", function (data) {
+  log("🚚", " LOG", data);
+});
