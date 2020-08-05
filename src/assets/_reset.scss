@@ -1,0 +1,153 @@
+*,
+*:before,
+*:after {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  font-size: 100%;
+  line-height: 1;
+  font: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+blockquote,
+q {
+  quotes: none;
+  &::before,
+  &::after {
+    content: "";
+    content: none;
+  }
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+mark {
+  background-color: transparent;
+  color: inherit;
+}
+
+audio,
+canvas,
+video,
+progress {
+  vertical-align: baseline;
+  display: inline-block;
+}
+
+audio:not([controls]),
+[hidden],
+template {
+  display: none;
+  height: 0;
+}
+sub,
+sup {
+  vertical-align: text-bottom;
+  display: inline-block;
+  line-height: 0;
+  font-size: 60%;
+}
+sup {
+  vertical-align: text-top;
+}
+pre {
+  overflow: auto;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+button,
+html input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button;
+  cursor: pointer;
+}
+
+input:not([type="radio"]):not([type="checkbox"]),
+textarea,
+select,
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="color"],
+input[type="url"],
+input[type="image"],
+input[type="tel"],
+input[type="submit"],
+input[type="file"],
+input[type="range"],
+input[type="reset"],
+input[type="button"],
+input[type="search"],
+button,
+textarea {
+  -webkit-appearance: none;
+  outline: 0 none;
+}
+textarea,
+button,
+a,
+input {
+  transition: all 0.25s ease;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+img {
+  vertical-align: middle;
+  max-width: 100%;
+  height: auto;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+.row {
+  width: calc(100% - 40px);
+  max-width: var(--row);
+  margin: 0 auto;
+  &.inrow {
+    max-width: var(--in-row);
+  }
+}

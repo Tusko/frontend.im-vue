@@ -1,28 +1,47 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <router-view />
+    <app-footer />
+    <!-- <transition name="fade">
+      <preloader v-if="loading" />
+    </transition> -->
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import AOS from "aos";
+import "aos/dist/aos.css";
+import "./assets/main.scss";
+import { mapActions } from "vuex";
 
 export default {
-  name: 'app',
   components: {
-    HelloWorld
-  }
-}
-</script>
+    "app-footer": () => import("./components/footer")
+    // preloader: () => import("./components/preloader")
+  },
+  // data: () => ({
+  //   loading: true
+  // }),
+  created() {
+    lazySizes.init();
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+    AOS.init();
+  },
+  async beforeMount() {
+    await this.fetchGitUser("tusko");
+    await this.fetchGitRepos("tusko").then(async () => {
+      await this.fetchFrontPage();
+      await this.fetchProjects();
+      // this.loading = false;
+    });
+  },
+  methods: {
+    ...mapActions([
+      "fetchGitUser",
+      "fetchGitRepos",
+      "fetchFrontPage",
+      "fetchProjects"
+    ])
+  }
+};
+</script>
