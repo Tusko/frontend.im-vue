@@ -10,30 +10,11 @@ const webpackConfig = {
       new GoogleFontsPlugin({
         fonts: [
           { family: "Source Sans Pro", variants: ["300", "400", "600"] },
-          { family: "Source Code Pro", variants: ["400"] }
+          { family: "Source Code Pro", variants: ["400"] },
         ],
-        formats: ["woff", "woff2"]
-      })
+        formats: ["woff", "woff2"],
+      }),
     ],
-    optimization: {
-      runtimeChunk: true,
-      minimize: true,
-      splitChunks: {
-        chunks: "all"
-      },
-      minimizer: [
-        new TerserPlugin({
-          terserOptions: {
-            extractComments: false,
-            parallel: true,
-            output: {
-              comments: false
-            },
-            ecma: 6
-          }
-        })
-      ]
-    },
     devServer: {
       https: true,
       proxy: {
@@ -41,11 +22,11 @@ const webpackConfig = {
           target: "https://wakatime.com",
           secure: false,
           changeOrigin: true,
-          pathRewrite: { "^/wakatime": "" }
-        }
-      }
-    }
-  }
+          pathRewrite: { "^/wakatime": "" },
+        },
+      },
+    },
+  },
 };
 
 if (isProduction) {
@@ -54,20 +35,20 @@ if (isProduction) {
     minimize: true,
     splitChunks: {
       chunks: "all",
-      maxSize: 2440000
+      maxSize: 2440000,
     },
     minimizer: [
       new TerserPlugin({
+        extractComments: true,
+        parallel: true,
         terserOptions: {
-          extractComments: false,
-          parallel: true,
+          mangle: true,
           output: {
-            comments: false
+            comments: false,
           },
-          ecma: 6
-        }
-      })
-    ]
+        },
+      }),
+    ],
   };
 }
 

@@ -15,7 +15,7 @@ lazySizesConfig.ricTimeout = 500;
 lazySizesConfig.expand = 100;
 
 //add simple support for background images:
-document.addEventListener("lazybeforeunveil", function(e) {
+document.addEventListener("lazybeforeunveil", function (e) {
   const el = e.target;
   const bg = el.getAttribute("data-bg");
   if (bg) {
@@ -27,7 +27,7 @@ document.addEventListener("lazybeforeunveil", function(e) {
 Vue.use(Vue2Storage, {
   prefix: "app_",
   driver: "local",
-  ttl: 86400000 // 24 hours
+  ttl: 86400000, // 24 hours
 });
 
 Vue.config.productionTip = false;
@@ -36,5 +36,5 @@ new Vue({
   router,
   store,
   BabelPolyfill,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");

@@ -12,9 +12,10 @@ export default class Blob {
   init() {
     this.rect = this.DOM.el.getBoundingClientRect();
     this.descriptions = [];
-    this.layers = Array.from(this.DOM.el.querySelectorAll("path"), t => {
-      t.style.transformOrigin = `${this.rect.left +
-        this.rect.width / 2}px ${this.rect.top + this.rect.height / 2}px`;
+    this.layers = Array.from(this.DOM.el.querySelectorAll("path"), (t) => {
+      t.style.transformOrigin = `${this.rect.left + this.rect.width / 2}px ${
+        this.rect.top + this.rect.height / 2
+      }px`;
       t.style.opacity = 0;
       this.descriptions.push(t.getAttribute("d"));
       return t;
@@ -25,9 +26,10 @@ export default class Blob {
       debounce(() => {
         this.rect = this.DOM.el.getBoundingClientRect();
         this.layers.forEach(
-          layer =>
-            (layer.style.transformOrigin = `${this.rect.left +
-              this.rect.width / 2}px ${this.rect.top + this.rect.height / 2}px`)
+          (layer) =>
+            (layer.style.transformOrigin = `${
+              this.rect.left + this.rect.width / 2
+            }px ${this.rect.top + this.rect.height / 2}px`)
         );
       }, 20)
     );
@@ -44,8 +46,8 @@ export default class Blob {
         value: [0, 1],
         duration: 300,
         delay: (t, i) => i * 120,
-        easing: "linear"
-      }
+        easing: "linear",
+      },
     });
   }
   expand() {
@@ -56,13 +58,13 @@ export default class Blob {
         duration: 1000,
         delay: (t, i) => i * 50 + 200,
         easing: [0.8, 0, 0.1, 0],
-        d: t => t.getAttribute("pathdata:id"),
-        update: function(anim) {
+        d: (t) => t.getAttribute("pathdata:id"),
+        update: function (anim) {
           if (anim.progress > 75 && !halfway) {
             halfway = true;
             resolve();
           }
-        }
+        },
       });
     });
   }
@@ -75,12 +77,12 @@ export default class Blob {
         delay: (t, i, total) => (total - i - 1) * 50 + 400,
         easing: [0.2, 1, 0.1, 1],
         d: (t, i) => this.descriptions[i],
-        update: function(anim) {
+        update: function (anim) {
           if (anim.progress > 75 && !halfway) {
             halfway = true;
             resolve();
           }
-        }
+        },
       });
     });
   }
@@ -96,8 +98,8 @@ export default class Blob {
         value: 0,
         duration: 500,
         delay: (t, i, total) => (total - i - 1) * 80,
-        easing: "linear"
-      }
+        easing: "linear",
+      },
     });
   }
   show() {

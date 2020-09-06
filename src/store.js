@@ -16,7 +16,7 @@ export default new Vuex.Store({
     gitUser: null,
     gitRepos: null,
     experience: null,
-    projects: null
+    projects: null,
   },
   mutations: {
     [SAVE_GIT_USER](state, payload) {
@@ -30,23 +30,23 @@ export default new Vuex.Store({
     },
     [SET_PROJECTS](state, payload) {
       state.projects = { ...payload };
-    }
+    },
   },
   getters: {
-    getGitUser: state => state.gitUser,
-    getGitRepos: state => state.gitRepos,
-    getExperience: state => state.experience,
-    getProjects: state => state.projects
+    getGitUser: (state) => state.gitUser,
+    getGitRepos: (state) => state.gitRepos,
+    getExperience: (state) => state.experience,
+    getProjects: (state) => state.projects,
   },
   actions: {
     fetchGitUser: async ({ commit }, user) => {
       await axios
         .get(`https://api.github.com/users/${user}`, {
           headers: {
-            Authorization: `token ${process.env.VUE_APP_GIT_TOKEN}`
-          }
+            Authorization: `token ${process.env.VUE_APP_GIT_TOKEN}`,
+          },
         })
-        .then(r => {
+        .then((r) => {
           commit(SAVE_GIT_USER, r.data);
         });
     },
@@ -59,12 +59,12 @@ export default new Vuex.Store({
           `https://api.github.com/users/${user}/repos?per_page=99&access_token=${process.env.VUE_APP_GIT_TOKEN}`,
           {
             headers: {
-              Authorization: `token ${process.env.VUE_APP_GIT_TOKEN}`
-            }
+              Authorization: `token ${process.env.VUE_APP_GIT_TOKEN}`,
+            },
           }
         )
-        .then(r => {
-          const data = filter(r.data, e => {
+        .then((r) => {
+          const data = filter(r.data, (e) => {
             e.unix = new Date(e.updated_at).getTime();
             if (!e.private && !e.fork && !e.name.includes("frontend.im")) {
               return e;
@@ -88,8 +88,8 @@ export default new Vuex.Store({
       return await axios.get(url, {
         headers: {
           "X-Final-Url": url,
-          "X-Request-Url": url
-        }
+          "X-Request-Url": url,
+        },
       });
     },
     fetchFrontPage({ commit }) {
@@ -98,7 +98,7 @@ export default new Vuex.Store({
 
       axios
         .get(`${process.env.VUE_APP_API}/wp-json/acf/v3/options/options`)
-        .then(res => {
+        .then((res) => {
           if (has(res.data.acf, "experience")) {
             commit(SET_EXPERIENCE, res.data.acf.experience);
             Vue.$storage.set("experience", res.data.acf.experience);
@@ -113,10 +113,10 @@ export default new Vuex.Store({
         .get(
           `${process.env.VUE_APP_API}/wp-json/wp/v2/posts?_minimal&per_page=100`
         )
-        .then(res => {
+        .then((res) => {
           commit(SET_PROJECTS, res.data);
           Vue.$storage.set("projects", res.data);
         });
-    }
-  }
+    },
+  },
 });

@@ -19,11 +19,11 @@ import { mapGetters } from "vuex";
 export default {
   name: "gitGrid",
   components: {
-    gitCard: () => import("./card")
+    gitCard: () => import("./card"),
   },
   computed: {
-    ...mapGetters(["getGitRepos"])
-  }
+    ...mapGetters(["getGitRepos"]),
+  },
 };
 </script>
 

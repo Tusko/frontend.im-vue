@@ -2,7 +2,7 @@ function activateDarkMode() {
   const rootElement = document.querySelector(":root");
   const darkTheme = {
     "--bg": "rgb(26, 30, 34)",
-    "--default": "#157efb"
+    "--default": "#157efb",
   };
   for (const k in darkTheme) {
     rootElement.style.setProperty(k, darkTheme[k]);
@@ -22,7 +22,7 @@ function activateLightMode() {
     "--dark": "#1a1e22",
     "--black": "#070600",
     "--row": "70em",
-    "--in-row": "40em"
+    "--in-row": "40em",
   };
   for (const k in lightTheme) {
     rootElement.style.setProperty(k, lightTheme[k]);
@@ -45,10 +45,10 @@ function setColorScheme() {
 
   window
     .matchMedia("(prefers-color-scheme: dark)")
-    .addListener(e => e.matches && activateDarkMode());
+    .addListener((e) => e.matches && activateDarkMode());
   window
     .matchMedia("(prefers-color-scheme: light)")
-    .addListener(e => e.matches && activateLightMode());
+    .addListener((e) => e.matches && activateLightMode());
 
   if (isDarkMode) activateDarkMode();
   if (isLightMode) activateLightMode();

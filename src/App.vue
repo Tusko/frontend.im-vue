@@ -16,7 +16,7 @@ import { mapActions } from "vuex";
 
 export default {
   components: {
-    "app-footer": () => import("./components/footer")
+    "app-footer": () => import("./components/footer"),
     // preloader: () => import("./components/preloader")
   },
   // data: () => ({
@@ -40,8 +40,8 @@ export default {
       "fetchGitUser",
       "fetchGitRepos",
       "fetchFrontPage",
-      "fetchProjects"
-    ])
-  }
+      "fetchProjects",
+    ]),
+  },
 };
 </script>

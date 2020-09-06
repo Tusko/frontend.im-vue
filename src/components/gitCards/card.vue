@@ -46,19 +46,19 @@ export default {
   props: {
     repo: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   components: {
-    Octicon: () => import("vue-octicon/components/Octicon.vue")
+    Octicon: () => import("vue-octicon/components/Octicon.vue"),
   },
   methods: {
     getGitColor(lang) {
       const langExt = lang.split(".");
       const langData = GitHubColors.get(langExt[0]);
       return langData ? langData.color : "#1a1e22";
-    }
-  }
+    },
+  },
 };
 </script>
 

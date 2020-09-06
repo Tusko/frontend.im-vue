@@ -17,9 +17,7 @@
               {{ getGitUser.company }}
             </a>
             <a
-              :href="
-                `https://maps.google.com?saddr=Current+Location&daddr=${getGitUser.location}`
-              "
+              :href="`https://maps.google.com?saddr=Current+Location&daddr=${getGitUser.location}`"
               target="_blank"
               class="me-location"
             >
@@ -60,13 +58,13 @@ export default {
     "git-grid": () => import("@/components/gitCards/grid"),
     experience: () => import("@/components/experience"),
     scene: () => import("@/components/scene"),
-    charts: () => import("./charts")
+    charts: () => import("./charts"),
   },
   computed: {
-    ...mapGetters(["getGitUser"])
+    ...mapGetters(["getGitUser"]),
   },
   data: () => ({
-    lazyComponent: false
+    lazyComponent: false,
   }),
   mounted() {
     if (this.getGitUser) {
@@ -76,8 +74,8 @@ export default {
   watch: {
     getGitUser() {
       this.lazyComponent = true;
-    }
-  }
+    },
+  },
 };
 </script>
 

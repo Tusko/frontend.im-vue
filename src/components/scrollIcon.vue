@@ -8,7 +8,7 @@
 export default {
   name: "scrollAnimation",
   data: () => ({
-    windowTop: 0
+    windowTop: 0,
   }),
   mounted() {
     window.addEventListener("scroll", this.onScroll);
@@ -22,8 +22,8 @@ export default {
         document.documentElement.scrollTop,
         document.body.scrollTop
       );
-    }
-  }
+    },
+  },
 };
 </script>
 

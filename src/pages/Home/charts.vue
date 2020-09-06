@@ -32,7 +32,7 @@ export default {
   name: "Charts",
   components: {
     "line-chart": () => import("@/components/charts/line"),
-    "pie-chart": () => import("@/components/charts/pie")
+    "pie-chart": () => import("@/components/charts/pie"),
   },
   data: () => ({
     lines: null,
@@ -40,7 +40,7 @@ export default {
     styles: {
       position: "relative",
       height: "100%",
-      width: "100%"
+      width: "100%",
     },
     lineChart: {
       collection: null,
@@ -55,21 +55,21 @@ export default {
             bottom: 30,
             right: 0,
             left: 0,
-            top: 20
-          }
+            top: 20,
+          },
         },
         scales: {
           xAxes: [
             {
               gridLines: {
-                display: false
+                display: false,
               },
               ticks: {
-                callback: label => {
+                callback: (label) => {
                   return label[0];
-                }
-              }
-            }
+                },
+              },
+            },
           ],
           yAxes: [
             {
@@ -77,20 +77,20 @@ export default {
               ticks: {
                 beginAtZero: true,
                 stepSize: 3600,
-                callback: label => `${label / 60 / 60}h`
-              }
-            }
-          ]
+                callback: (label) => `${label / 60 / 60}h`,
+              },
+            },
+          ],
         },
         tooltips: {
           intersect: false,
           mode: "index",
           callbacks: {
             label: (tooltip, data) => data.labels[tooltip.index][0],
-            title: (tooltip, data) => data.labels[tooltip[0].index][1]
-          }
-        }
-      }
+            title: (tooltip, data) => data.labels[tooltip[0].index][1],
+          },
+        },
+      },
     },
     pieChart: {
       collection: null,
@@ -101,33 +101,33 @@ export default {
         legend: {
           position: "left",
           fullWidth: false,
-          onClick: () => false
+          onClick: () => false,
         },
         title: false,
         layout: {
           padding: {
             bottom: 40,
-            top: 20
-          }
+            top: 20,
+          },
         },
         pieceLabel: {
           mode: "percentage",
-          precision: 1
+          precision: 1,
         },
         tooltips: {
           callbacks: {
-            label: function(tooltipItem, data) {
+            label: function (tooltipItem, data) {
               return (
                 data["labels"][tooltipItem["index"]] +
                 ": " +
                 data["datasets"][0]["data"][tooltipItem["index"]] +
                 "%"
               );
-            }
-          }
-        }
-      }
-    }
+            },
+          },
+        },
+      },
+    },
   }),
   methods: {
     ...mapActions(["fetchWakatime"]),
@@ -139,10 +139,10 @@ export default {
       this.lines = activityObj;
 
       this.$nextTick(() => {
-        forEach(this.lines, el => {
+        forEach(this.lines, (el) => {
           lineLabels.push([
             el.range.date.replace(/-/g, "."),
-            el.grand_total.text
+            el.grand_total.text,
           ]);
           lineData.push(el.grand_total.total_seconds);
         });
@@ -156,9 +156,9 @@ export default {
               borderColor: this.colorfulGradient[1],
               borderWidth: 2,
               pointRadius: 3,
-              fill: true
-            }
-          ]
+              fill: true,
+            },
+          ],
         });
       });
     },
@@ -171,13 +171,13 @@ export default {
         GitHubColors.colors["SCSS"].color = "#CF649A";
       }
 
-      const filterLangs = filter(langObj, el => el.percent > 0.5);
+      const filterLangs = filter(langObj, (el) => el.percent > 0.5);
 
       this.$storage.set("langs", filterLangs);
       this.langs = filterLangs;
 
       this.$nextTick(() => {
-        forEach(this.langs, el => {
+        forEach(this.langs, (el) => {
           pieLabels.push(el.name);
           pieData.push(el.percent);
           const langExt = el.name.split(".");
@@ -190,12 +190,12 @@ export default {
           datasets: [
             {
               backgroundColor: pieColors,
-              data: pieData
-            }
-          ]
+              data: pieData,
+            },
+          ],
         });
       });
-    }
+    },
   },
   computed: {
     colorfulGradient() {
@@ -209,7 +209,7 @@ export default {
       border.addColorStop(1, "#bbb");
       border.addColorStop(0, "#ccc");
       return [bg, border];
-    }
+    },
   },
   async beforeMount() {
     // fetch and generate lineChart
@@ -217,7 +217,7 @@ export default {
     if (activityData) {
       await this.generateActivityChart(activityData);
     } else {
-      await this.fetchWakatime("activity").then(res => {
+      await this.fetchWakatime("activity").then((res) => {
         this.generateActivityChart(cloneDeep(res.data.data));
       });
     }
@@ -227,11 +227,11 @@ export default {
     if (langsData) {
       await this.generateLangChart(langsData);
     } else {
-      await this.fetchWakatime("langs").then(res => {
+      await this.fetchWakatime("langs").then((res) => {
         this.generateLangChart(cloneDeep(res.data.data));
       });
     }
-  }
+  },
 };
 </script>
 

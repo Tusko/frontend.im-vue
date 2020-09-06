@@ -224,12 +224,12 @@ export default {
     const DOM = {};
     let blobs = [];
     DOM.svg = document.querySelector("svg.scene");
-    Array.from(DOM.svg.querySelectorAll("g")).forEach(el => {
+    Array.from(DOM.svg.querySelectorAll("g")).forEach((el) => {
       const blob = new Blob(el);
       blobs.push(blob);
       blob.intro();
     });
-  }
+  },
 };
 </script>
 

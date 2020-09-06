@@ -8,7 +8,7 @@
           :key="`ex-tab-${inx}`"
           :class="[
             'experience-tabs-item',
-            { 'is-active': currentTab === Number(inx) }
+            { 'is-active': currentTab === Number(inx) },
           ]"
           @click="tab = Number(inx)"
         >
@@ -49,7 +49,7 @@ import { mapGetters } from "vuex";
 export default {
   name: "Experience",
   data: () => ({
-    tab: 0
+    tab: 0,
   }),
   computed: {
     ...mapGetters(["getExperience"]),
@@ -59,8 +59,8 @@ export default {
     pointPosition() {
       const fromTop = this.currentTab * 45;
       return { transform: `translateY(${fromTop}px)` };
-    }
-  }
+    },
+  },
 };
 </script>
 

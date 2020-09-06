@@ -11,6 +11,6 @@ export default {
     // If you want to pass options please create a local options object
     Chart.defaults.global.defaultFontFamily = "Source Code Pro";
     this.renderChart(this.chartData, this.options);
-  }
+  },
 };
 </script>

@@ -10,7 +10,7 @@
         <figure
           class="cover lazyload"
           :style="{
-            'background-image': 'url(' + webpUrl(project.thumbnail[0]) + ')'
+            'background-image': 'url(' + webpUrl(project.thumbnail[0]) + ')',
           }"
           :data-bg="webpUrl(project.cover[0])"
         ></figure>
@@ -39,14 +39,14 @@ export default {
   name: "featuredProjects",
   mixins: [webp],
   computed: {
-    ...mapGetters(["getProjects"])
+    ...mapGetters(["getProjects"]),
   },
   methods: {
     postedAt(date) {
       const mm = moment(date, "YYYYMMDD");
       return mm.format("MMMM YYYY");
-    }
-  }
+    },
+  },
 };
 </script>
 

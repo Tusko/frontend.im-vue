@@ -42,8 +42,8 @@ export default {
     year: new Date().getFullYear(),
     links: {
       vue: "https://vuejs.org/",
-      arsmoon: "https://arsmoon.com"
-    }
-  })
+      arsmoon: "https://arsmoon.com",
+    },
+  }),
 };
 </script>
