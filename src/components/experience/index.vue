@@ -32,7 +32,7 @@
               <a :href="v.company_url" rel="nofollow" target="_blank">
                 @ {{ v.company }}</a
               >
-              <small> / {{ v.company_desc }}</small>
+              <small v-if="v.company_desc"> / {{ v.company_desc }}</small>
             </h4>
             <h6>{{ v.years }}</h6>
             <h5>Responsibilities:</h5>
