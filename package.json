@@ -13,7 +13,7 @@
     "@beyonk/google-fonts-webpack-plugin": "^1.5.0",
     "animejs": "^3.2.0",
     "aos": "^3.0.0-beta.6",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
     "chart.js": "^2.9.3",
     "core-js": "^3.6.5",
