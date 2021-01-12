@@ -32,7 +32,7 @@ if (isProduction) {
     minimizer: [
       new TerserPlugin({
         extractComments: true,
-        parallel: true,
+        parallel: false,
         terserOptions: {
           mangle: true,
           output: {
