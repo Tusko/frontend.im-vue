@@ -217,8 +217,8 @@ export default {
     if (activityData) {
       await this.generateActivityChart(activityData);
     } else {
-      await this.fetchWakatime("activity").then((res) => {
-        this.generateActivityChart(cloneDeep(res.data.data));
+      await this.fetchWakatime("activity").then(({ data }) => {
+        this.generateActivityChart(cloneDeep(data.data));
       });
     }
 
@@ -227,8 +227,8 @@ export default {
     if (langsData) {
       await this.generateLangChart(langsData);
     } else {
-      await this.fetchWakatime("langs").then((res) => {
-        this.generateLangChart(cloneDeep(res.data.data));
+      await this.fetchWakatime("langs").then(({ data }) => {
+        this.generateLangChart(cloneDeep(data.data));
       });
     }
   },

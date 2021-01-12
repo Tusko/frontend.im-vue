@@ -17,14 +17,6 @@ const webpackConfig = {
     ],
     devServer: {
       https: true,
-      proxy: {
-        "/wakatime": {
-          target: "https://wakatime.com",
-          secure: false,
-          changeOrigin: true,
-          pathRewrite: { "^/wakatime": "" },
-        },
-      },
     },
   },
 };

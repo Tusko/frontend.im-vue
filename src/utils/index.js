@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-const anime = require("animejs");
+import anime from "animejs/lib/anime.es.js";
 
 export const webp = {
   data: () => ({
@@ -68,12 +68,12 @@ export class Blob {
     );
   }
   intro() {
-    anime.remove(this.layers);
+    // anime.remove(this.layers);
     anime({
       targets: this.layers,
       duration: 1800,
       delay: (t, i) => i * 120,
-      easing: [0.2, 1, 0.1, 1],
+      easing: "cubicBezier(0.2, 1, 0.1, 1)",
       scale: [0.2, 1],
       opacity: {
         value: [0, 1],

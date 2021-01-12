@@ -83,14 +83,10 @@ export default new Vuex.Store({
           commit(SAVE_GIT_REPOS, splicedRepost);
         });
     },
-    fetchWakatime: async (context, type) => {
-      const url = process.env[`VUE_APP_WAKATIME_${type.toUpperCase()}`];
-      return await axios.get(url, {
-        headers: {
-          "X-Final-Url": url,
-          "X-Request-Url": url,
-        },
-      });
+    fetchWakatime: async (_, type) => {
+      return await axios.get(
+        `${process.env.VUE_APP_API}/wp-json/wakatime/v3/${type}`
+      );
     },
     fetchFrontPage({ commit }) {
       const experience = Vue.$storage.get("experience");

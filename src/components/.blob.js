@@ -35,7 +35,7 @@ export default class Blob {
     );
   }
   intro() {
-    anime.remove(this.layers);
+    // anime.remove(this.layers);
     anime({
       targets: this.layers,
       duration: 1800,
