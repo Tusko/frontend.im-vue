@@ -70,4 +70,11 @@
       }
     }
   }
+  &-content {
+    background: var(--light);
+    padding: 54px 0 40px;
+    ::v-deep h3 {
+      margin-bottom: 20px;
+    }
+  }
 }

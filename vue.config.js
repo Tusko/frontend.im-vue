@@ -16,6 +16,7 @@ const webpackConfig = {
       }),
     ],
     devServer: {
+      disableHostCheck: true,
       https: true,
     },
   },

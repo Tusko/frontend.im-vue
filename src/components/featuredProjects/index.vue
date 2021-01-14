@@ -27,11 +27,15 @@
         </div>
       </div>
     </div>
+
+    <div v-if="otherProjects && otherProjects.length" class="projects-content">
+      <article class="row" v-html="otherProjects"></article>
+    </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { webp } from "@/utils";
 import moment from "moment";
 
@@ -39,6 +43,9 @@ export default {
   name: "featuredProjects",
   mixins: [webp],
   computed: {
+    ...mapState({
+      otherProjects: (state) => state.otherProjects,
+    }),
     ...mapGetters(["getProjects"]),
   },
   methods: {

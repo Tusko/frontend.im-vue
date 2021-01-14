@@ -6,6 +6,7 @@ import { orderBy, has, filter } from "lodash";
 const SAVE_GIT_USER = "SAVE_GIT_USER";
 const SAVE_GIT_REPOS = "SAVE_GIT_REPOS";
 const SET_EXPERIENCE = "SET_EXPERIENCE";
+const SET_OTHER_PROJECTS = "SET_OTHER_PROJECTS";
 const SET_PROJECTS = "SET_PROJECTS";
 
 Vue.use(Vuex);
@@ -16,6 +17,7 @@ export default new Vuex.Store({
     gitUser: null,
     gitRepos: null,
     experience: null,
+    otherProjects: null,
     projects: null,
   },
   mutations: {
@@ -27,6 +29,11 @@ export default new Vuex.Store({
     },
     [SET_EXPERIENCE](state, payload) {
       state.experience = { ...payload };
+      Vue.$storage.set("experience", payload);
+    },
+    [SET_OTHER_PROJECTS](state, txt) {
+      state.otherProjects = txt;
+      Vue.$storage.set("otherProjects", txt);
     },
     [SET_PROJECTS](state, payload) {
       state.projects = { ...payload };
@@ -89,15 +96,14 @@ export default new Vuex.Store({
       );
     },
     fetchFrontPage({ commit }) {
-      const experience = Vue.$storage.get("experience");
-      if (experience) return commit("SET_EXPERIENCE", experience);
-
       axios
         .get(`${process.env.VUE_APP_API}/wp-json/acf/v3/options/options`)
         .then((res) => {
           if (has(res.data.acf, "experience")) {
             commit(SET_EXPERIENCE, res.data.acf.experience);
-            Vue.$storage.set("experience", res.data.acf.experience);
+          }
+          if (has(res.data.acf, "other_projects")) {
+            commit(SET_OTHER_PROJECTS, res.data.acf.other_projects);
           }
         });
     },
