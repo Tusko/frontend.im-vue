@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <router-view />
-    <app-footer />
+
+    <app-footer v-if="$route.name !== 'cv'" />
     <!-- <transition name="fade">
       <preloader v-if="loading" />
     </transition> -->
@@ -22,12 +23,12 @@ export default {
   // data: () => ({
   //   loading: true
   // }),
-  created() {
+  mounted() {
     lazySizes.init();
 
     AOS.init();
   },
-  async beforeMount() {
+  async created() {
     await this.fetchGitUser("tusko");
     await this.fetchGitRepos("tusko").then(async () => {
       await this.fetchFrontPage();

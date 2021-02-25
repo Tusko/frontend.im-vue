@@ -7,7 +7,6 @@
         </figure>
         <article class="content" data-aos="zoom-in-up" data-aos-delay="300">
           <h1>{{ getGitUser.name }}</h1>
-          <a href="mailto:" class="mailto"></a>
           <p>
             {{ getGitUser.bio }}
           </p>

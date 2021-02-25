@@ -10,7 +10,7 @@ const webpackConfig = {
       new GoogleFontsPlugin({
         fonts: [
           { family: "Source Sans Pro", variants: ["300", "400", "600"] },
-          { family: "Source Code Pro", variants: ["400"] },
+          { family: "Source Code Pro", variants: ["400", "600"] },
         ],
         formats: ["woff", "woff2"],
       }),
