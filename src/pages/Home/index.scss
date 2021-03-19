@@ -20,6 +20,12 @@
       display: block;
     }
   }
+  &-cv {
+    margin-bottom: 22px;
+    .button {
+      color: var(--white);
+    }
+  }
   &-data {
     font-family: var(--font2);
     @media screen and (min-width: 640px) {

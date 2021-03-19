@@ -7,9 +7,12 @@
         </figure>
         <article class="content" data-aos="zoom-in-up" data-aos-delay="300">
           <h1>{{ getGitUser.name }}</h1>
-          <p>
-            {{ getGitUser.bio }}
-          </p>
+          <p>{{ getGitUser.bio }}</p>
+
+          <div class="me-cv">
+            <UiButton label="Get the CV" href="/cv" />
+          </div>
+
           <div class="me-data">
             <a :href="getGitUser.blog" target="_blank" class="me-url">
               <octicon name="briefcase"></octicon>
@@ -58,6 +61,7 @@ export default {
     experience: () => import("@/components/experience"),
     scene: () => import("@/components/scene"),
     charts: () => import("./charts"),
+    UiButton: () => import("@/components/UiButton"),
   },
   computed: {
     ...mapGetters(["getGitUser"]),

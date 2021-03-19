@@ -115,6 +115,9 @@ export default {
       if (this.$refs?.html2Pdf) {
         this.$nextTick(() => {
           this.$refs.html2Pdf.generatePdf();
+          setTimeout(() => {
+            this.$router.push("/");
+          }, 1e3);
         });
       }
     },
