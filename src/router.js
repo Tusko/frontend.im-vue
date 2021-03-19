@@ -19,6 +19,11 @@ export default new Router({
       component: load("Home"),
     },
     {
+      path: "/cv",
+      name: "cv",
+      component: load("CV"),
+    },
+    {
       path: "*",
       name: "404",
       component: load("404"),

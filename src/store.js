@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import { orderBy, has, filter } from "lodash";
+import { orderBy, filter } from "lodash";
 
 const SAVE_GIT_USER = "SAVE_GIT_USER";
 const SAVE_GIT_REPOS = "SAVE_GIT_REPOS";
@@ -98,13 +98,10 @@ export default new Vuex.Store({
     fetchFrontPage({ commit }) {
       axios
         .get(`${process.env.VUE_APP_API}/wp-json/acf/v3/options/options`)
-        .then((res) => {
-          if (has(res.data.acf, "experience")) {
-            commit(SET_EXPERIENCE, res.data.acf.experience);
-          }
-          if (has(res.data.acf, "other_projects")) {
-            commit(SET_OTHER_PROJECTS, res.data.acf.other_projects);
-          }
+        .then(({ data }) => {
+          data?.acf?.experience && commit(SET_EXPERIENCE, data.acf.experience);
+          data?.acf?.other_projects &&
+            commit(SET_OTHER_PROJECTS, data.acf.other_projects);
         });
     },
     fetchProjects({ commit }) {
