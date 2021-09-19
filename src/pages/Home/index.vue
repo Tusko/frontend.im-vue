@@ -1,5 +1,6 @@
 <template>
   <main>
+    <UiCursor />
     <div v-if="getGitUser" class="me">
       <section class="row inrow">
         <figure class="me-avatar row" data-aos="zoom-in-up">
@@ -62,6 +63,7 @@ export default {
     scene: () => import("@/components/scene"),
     charts: () => import("./charts"),
     UiButton: () => import("@/components/UiButton"),
+    UiCursor: () => import("@/components/UiCursor"),
   },
   computed: {
     ...mapGetters(["getGitUser"]),
