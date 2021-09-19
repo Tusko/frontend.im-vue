@@ -3,10 +3,17 @@ import App from "./App";
 import router from "./router";
 import store from "./store";
 import "vue-octicon/icons";
-import { Vue2Storage } from "vue2-storage";
 import "es6-promise/auto";
 import BabelPolyfill from "babel-polyfill";
 import "lazysizes";
+import {Plugin} from 'vue2-storage';
+
+Vue.use(Plugin, {
+  prefix: 'fm_',
+  driver: 'local',
+  ttl: 60 * 60 * 1000 * 24, // 24 hours
+  // replacer: (key, value) => value
+});
 
 window.lazySizesConfig = window.lazySizesConfig || {};
 lazySizesConfig.loadMode = 1;
@@ -22,12 +29,6 @@ document.addEventListener("lazybeforeunveil", function (e) {
     el.style.backgroundImage = "url(" + bg + ")";
     el.removeAttribute("data-bg");
   }
-});
-
-Vue.use(Vue2Storage, {
-  prefix: "app_",
-  driver: "local",
-  ttl: 86400000, // 24 hours
 });
 
 Vue.prototype.$$ = (obj, ...rest) => {

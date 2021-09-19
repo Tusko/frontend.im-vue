@@ -30,11 +30,10 @@ export default {
   },
   async created() {
     await this.fetchGitUser("tusko");
-    await this.fetchGitRepos("tusko").then(async () => {
-      await this.fetchFrontPage();
-      await this.fetchProjects();
-      // this.loading = false;
-    });
+    await this.fetchGitRepos("tusko");
+    await this.fetchFrontPage();
+    await this.fetchProjects();
+    // this.loading = false;
   },
   methods: {
     ...mapActions([
