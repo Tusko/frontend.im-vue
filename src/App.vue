@@ -6,6 +6,7 @@
     <!-- <transition name="fade">
       <preloader v-if="loading" />
     </transition> -->
+    <UiCursor />
   </div>
 </template>
 
@@ -18,6 +19,8 @@ import { mapActions } from "vuex";
 export default {
   components: {
     "app-footer": () => import("./components/footer"),
+    UiCursor: () => import("@/components/UiCursor"),
+
     // preloader: () => import("./components/preloader")
   },
   // data: () => ({

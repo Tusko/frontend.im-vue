@@ -1,4 +1,4 @@
-import {debounce} from "lodash";
+import { debounce } from "lodash";
 import anime from "animejs/lib/anime.es.js";
 
 export const webp = {
@@ -35,7 +35,7 @@ export const webp = {
 };
 
 export class Blob {
-  constructor (el, options) {
+  constructor(el, options) {
     this.DOM = {};
     this.DOM.el = el;
     this.options = {};
@@ -46,8 +46,9 @@ export class Blob {
     this.rect = this.DOM.el.getBoundingClientRect();
     this.descriptions = [];
     this.layers = Array.from(this.DOM.el.querySelectorAll("path"), (t) => {
-      t.style.transformOrigin = `${this.rect.left + this.rect.width / 2}px ${this.rect.top + this.rect.height / 2
-        }px`;
+      t.style.transformOrigin = `${this.rect.left + this.rect.width / 2}px ${
+        this.rect.top + this.rect.height / 2
+      }px`;
       t.style.opacity = 0;
       this.descriptions.push(t.getAttribute("d"));
       return t;
@@ -59,7 +60,8 @@ export class Blob {
         this.rect = this.DOM.el.getBoundingClientRect();
         this.layers.forEach(
           (layer) =>
-          (layer.style.transformOrigin = `${this.rect.left + this.rect.width / 2
+            (layer.style.transformOrigin = `${
+              this.rect.left + this.rect.width / 2
             }px ${this.rect.top + this.rect.height / 2}px`)
         );
       }, 20)

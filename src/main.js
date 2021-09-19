@@ -6,11 +6,11 @@ import "vue-octicon/icons";
 import "es6-promise/auto";
 import BabelPolyfill from "babel-polyfill";
 import "lazysizes";
-import {Plugin} from 'vue2-storage';
+import { Plugin } from "vue2-storage";
 
 Vue.use(Plugin, {
-  prefix: 'fm_',
-  driver: 'local',
+  prefix: "fm_",
+  driver: "local",
   ttl: 60 * 60 * 1000 * 24, // 24 hours
   // replacer: (key, value) => value
 });

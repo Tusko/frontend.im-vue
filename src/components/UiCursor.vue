@@ -56,7 +56,7 @@ export default {
 };
 </script>
 
-<style lang="scss" >
+<style lang="scss">
 *,
 a,
 button {
@@ -66,7 +66,11 @@ button {
 
 <style lang="scss" scoped>
 .g-cursor {
+  z-index: 9999999;
   &_hide {
+    top: 0;
+    left: 0;
+    position: fixed;
     opacity: 0;
     width: 60px;
     height: 60px;
@@ -74,16 +78,15 @@ button {
   }
 
   &__circle {
-    pointer-events: none;
-    user-select: none;
     top: 0;
     left: 0;
     position: fixed;
     width: 30px;
     height: 30px;
+    pointer-events: none;
+    user-select: none;
     border: 2px solid #333;
     border-radius: 100%;
-    z-index: 5555;
     backface-visibility: hidden;
     transition: opacity 0.6s ease;
   }

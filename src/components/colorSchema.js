@@ -36,8 +36,9 @@ function activateLightMode() {
  */
 function setColorScheme() {
   const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const isLightMode = window.matchMedia("(prefers-color-scheme: light)")
-    .matches;
+  const isLightMode = window.matchMedia(
+    "(prefers-color-scheme: light)"
+  ).matches;
   const isNotSpecified = window.matchMedia(
     "(prefers-color-scheme: no-preference)"
   ).matches;
