@@ -7,6 +7,16 @@
         <a :href="links.arsmoon" class="heart" target="_blank">&hearts;</a> and
         <a :href="links.vue" rel="noopener nofollow" target="_blank">Vue.js</a>
       </p>
+      <p>
+        <a
+          href="https://wakatime.com/@36bf7ce8-0e11-4e63-bea7-06612a86747f"
+          ref="nofollow noopener"
+          target="_blank"
+          ><img
+            src="https://wakatime.com/badge/user/36bf7ce8-0e11-4e63-bea7-06612a86747f.svg"
+            alt="Total time coded since Aug 20 2014"
+        /></a>
+      </p>
     </div>
   </footer>
 </template>
