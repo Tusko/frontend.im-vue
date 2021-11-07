@@ -7,17 +7,17 @@
         </figure>
         <article class="content" data-aos="zoom-in-up" data-aos-delay="300">
           <h1>{{ getGitUser.name }}</h1>
-          <p>{{ getGitUser.bio }}</p>
+          <p class="me-bio" v-html="getBio"></p>
 
           <div class="me-cv">
             <UiButton label="Get the CV" href="/cv" />
           </div>
 
           <div class="me-data">
-            <a :href="getGitUser.blog" target="_blank" class="me-url">
+            <!-- <a href="https://mylab.report" target="_blank" class="me-url">
               <octicon name="briefcase"></octicon>
-              {{ getGitUser.company }}
-            </a>
+              MyLab
+            </a> -->
             <a
               :href="`https://maps.google.com?saddr=Current+Location&daddr=${getGitUser.location}`"
               target="_blank"
@@ -65,6 +65,22 @@ export default {
   },
   computed: {
     ...mapGetters(["getGitUser"]),
+    getBio() {
+      let { bio } = this.getGitUser;
+      bio = bio.replace(
+        "MyLab",
+        '<a href="https://intro.mylab.report" target="_blank">MyLab</a>'
+      );
+      bio = bio.replace(
+        "MSTrade",
+        '<a href="https://mstrade.org" target="_blank">MSTrade</a>'
+      );
+      bio = bio.replace(
+        "Lab24",
+        '<a href="https://lab24.com.ua" target="_blank">Lab24</a>'
+      );
+      return bio;
+    },
   },
   data: () => ({
     lazyComponent: false,

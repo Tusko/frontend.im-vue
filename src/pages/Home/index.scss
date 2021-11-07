@@ -10,6 +10,14 @@
   padding: 100px 0;
   display: flex;
   z-index: 0;
+  &-bio {
+    ::v-deep a {
+      color: var(--light);
+      &:hover {
+        color: var(--blue);
+      }
+    }
+  }
   &-avatar {
     border: 5px solid var(--blue);
     margin-bottom: 20px;
@@ -38,6 +46,7 @@
         }
       }
     }
+
     a {
       justify-content: center;
       text-decoration: none;
