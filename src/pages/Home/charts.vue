@@ -171,7 +171,12 @@ export default {
         GitHubColors.colors["SCSS"].color = "#CF649A";
       }
 
-      const filterLangs = filter(langObj, (el) => el.percent > 0.5);
+      console.log(langObj);
+
+      const filterLangs = filter(
+        langObj,
+        ({ percent, name }) => percent > 0.5 && name.toLowerCase() !== "other"
+      );
 
       this.$storage.set("langs", filterLangs);
       this.langs = filterLangs;
