@@ -108,7 +108,7 @@ export default {
     },
   },
   updated() {
-    if(!this.$route.query?.preview) {
+    if (!this.$route.query?.preview) {
       this.getPDF();
     }
   },
