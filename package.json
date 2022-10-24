@@ -17,7 +17,6 @@
     "chart.js": "2.9.4",
     "core-js": "^3.17.3",
     "es6-promise": "^4.2.8",
-    "ftp-deploy": "^2.4.1",
     "github-colors": "^2.2.20",
     "lazysizes": "^5.3.2",
     "vue": "^2.6.14",
