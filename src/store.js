@@ -91,9 +91,17 @@ export default new Vuex.Store({
         });
     },
     fetchWakatime: (_, type) => {
-      return axios.get(
-        `${process.env.VUE_APP_API}/wp-json/wakatime/v3/${type}`
-      );
+      const EP = {
+        langs:
+          "https://wakatime.com/share/@tuskotrush/aa6a2ff7-94f5-434c-8aba-d06c33b5f472.json",
+        activity:
+          "https://wakatime.com/share/@tuskotrush/8a6e81a1-5f7b-4ad6-a924-f3c620acdc6d.json",
+      };
+      return axios.get(process.env.VUE_APP_PROXY, {
+        params: {
+          csurl: EP[type],
+        },
+      });
     },
     fetchFrontPage({ commit }) {
       axios
