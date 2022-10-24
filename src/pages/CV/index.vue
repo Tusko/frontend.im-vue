@@ -10,19 +10,21 @@
       pdf-format="a4"
       pdf-orientation="portrait"
       ref="html2Pdf"
-      :manual-pagination="true"
       :enable-links="true"
+      :manual-pagination="true"
     >
       <!-- @progress="onProgress($event)"
       @hasStartedGeneration="hasStartedGeneration()"
       @hasGenerated="hasGenerated($event)" -->
       <div id="cv" class="row content" slot="pdf-content">
-        <h1>Vitalii Trush</h1>
-        <p class="position">Vue.js Front-end Developer</p>
+        <section>
+          <h1>Vitalii Trush</h1>
+          <p class="position">Vue.js Front-end Developer</p>
 
-        <p class="bday">
-          <b>DOB:</b> {{ birthDate }}<small>({{ getAge }} years old)</small>
-        </p>
+          <p class="bday">
+            <b>DOB:</b> {{ birthDate }}<small>({{ getAge }} years old)</small>
+          </p>
+        </section>
 
         <section class="contact">
           <h3>Contact info:</h3>
@@ -46,23 +48,20 @@
         <h3>Experience</h3>
         <section
           class="experience"
-          v-for="(exp, i) in getExperience"
+          v-for="exp in getExperience"
           :key="exp.company"
         >
           <h4>
-            <a :href="exp.company_url">{{ exp.company }}</a>
-            <slot v-if="exp.company_desc">
-              <small> - {{ exp.company_desc }}</small>
-            </slot>
+            <div>
+              <a :href="exp.company_url">{{ exp.company }}</a>
+              <small v-if="exp.company_desc"> - {{ exp.company_desc }}</small>
+            </div>
 
             <span class="years">{{ exp.years }}</span>
           </h4>
           <p><b>Position:</b> {{ exp.position }}</p>
           <p><b>Responsibilities:</b></p>
           <div v-html="exp.list"></div>
-          <slot v-if="Object.keys(getExperience).length - 1 !== i">
-            <mark v-if="i % 2 === 1" class="html2pdf__page-break"></mark>
-          </slot>
         </section>
 
         <section class="langs">
@@ -115,11 +114,11 @@ export default {
   methods: {
     getPDF() {
       if (this.$refs?.html2Pdf) {
-        this.$nextTick(() => {
-          this.$refs.html2Pdf.generatePdf();
+        this.$nextTick(async () => {
+          await this.$refs.html2Pdf.generatePdf();
           setTimeout(() => {
             this.$router.push("/");
-          }, 1e3);
+          }, 100);
         });
       }
     },
@@ -151,8 +150,8 @@ export default {
     margin-bottom: 16px;
   }
   small {
-    margin-left: 6px;
     opacity: 0.65;
+    display: block;
   }
   table {
     table-layout: fixed;
@@ -165,9 +164,13 @@ export default {
     padding-bottom: 0;
     h4 {
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end;
       margin-bottom: 10px;
       display: flex;
+      > div {
+        margin-right: 20px;
+        flex: 1;
+      }
       > span {
         margin-left: auto;
       }
