@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import {orderBy, filter} from "lodash";
+import { orderBy, filter } from "lodash";
 
 const SAVE_GIT_USER = "SAVE_GIT_USER";
 const SAVE_GIT_REPOS = "SAVE_GIT_REPOS";
@@ -22,13 +22,13 @@ export default new Vuex.Store({
   },
   mutations: {
     [SAVE_GIT_USER](state, payload) {
-      state.gitUser = {...payload};
+      state.gitUser = { ...payload };
     },
     [SAVE_GIT_REPOS](state, payload) {
-      state.gitRepos = {...payload};
+      state.gitRepos = { ...payload };
     },
     [SET_EXPERIENCE](state, payload) {
-      state.experience = {...payload};
+      state.experience = { ...payload };
       Vue.$storage.set("experience", payload);
     },
     [SET_OTHER_PROJECTS](state, txt) {
@@ -36,7 +36,7 @@ export default new Vuex.Store({
       Vue.$storage.set("otherProjects", txt);
     },
     [SET_PROJECTS](state, payload) {
-      state.projects = {...payload};
+      state.projects = { ...payload };
     },
   },
   getters: {
@@ -46,7 +46,7 @@ export default new Vuex.Store({
     getProjects: (state) => state.projects,
   },
   actions: {
-    fetchGitUser: async ({commit}, user) => {
+    fetchGitUser: async ({ commit }, user) => {
       await axios
         .get(`https://api.github.com/users/${user}`, {
           headers: {
@@ -57,7 +57,7 @@ export default new Vuex.Store({
           commit(SAVE_GIT_USER, r.data);
         });
     },
-    fetchGitRepos: async ({commit, state}, user) => {
+    fetchGitRepos: async ({ commit, state }, user) => {
       const repos = Vue.$storage.get("repos");
       if (repos) return commit(SAVE_GIT_REPOS, repos);
 
@@ -105,27 +105,47 @@ export default new Vuex.Store({
       };
       return axios.get(process.env.VUE_APP_PROXY, {
         params: {
-          csurl: EP[type],
+          url: EP[type],
+        },
+        headers: {
+          "X-Cache-TTL": 86400,
+          "X-Cache-Name": `frontend.im-wakatime-${type}`,
         },
       });
     },
-    fetchFrontPage({commit}) {
+    fetchFrontPage({ commit }) {
       axios
-        .get(`${process.env.VUE_APP_API}/wp-json/acf/v3/options/options`)
-        .then(({data}) => {
+        .get(process.env.VUE_APP_PROXY, {
+          params: {
+            url: `${process.env.VUE_APP_API}/wp-json/acf/v3/options/options`,
+          },
+          headers: {
+            "X-Cache-TTL": 86400,
+            "X-Cache-Name": "frontend.im-options",
+          },
+          withCredentials: false,
+        })
+        .then(({ data }) => {
           data?.acf?.experience && commit(SET_EXPERIENCE, data.acf.experience);
           data?.acf?.other_projects &&
             commit(SET_OTHER_PROJECTS, data.acf.other_projects);
         });
     },
-    fetchProjects({commit}) {
+    fetchProjects({ commit }) {
       const projects = Vue.$storage.get("projects");
       if (projects) return commit(SET_PROJECTS, projects);
 
       axios
-        .get(
-          `${process.env.VUE_APP_API}/wp-json/wp/v2/posts?_minimal&per_page=100`
-        )
+        .get(process.env.VUE_APP_PROXY, {
+          params: {
+            url: `${process.env.VUE_APP_API}/wp-json/wp/v2/posts?_minimal&per_page=100`,
+          },
+          headers: {
+            "X-Cache-TTL": 86400,
+            "X-Cache-Name": "frontend.im-options",
+          },
+          withCredentials: false,
+        })
         .then((res) => {
           commit(SET_PROJECTS, res.data);
           Vue.$storage.set("projects", res.data);
