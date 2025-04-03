@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import {mapGetters} from "vuex";
 import VueHtml2pdf from "vue-html2pdf";
 
 export default {
