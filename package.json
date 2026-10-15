@@ -27,5 +27,6 @@
     "typescript": "^5",
     "vue-tsc": "^3.3.13",
     "wrangler": "^4.151.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
