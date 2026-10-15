@@ -14,9 +14,11 @@ onMounted(async () => {
     },
   });
   quill.root.setAttribute("aria-label", props.label);
-  quill.clipboard.dangerouslyPasteHTML(model.value);
   // Quill 2 emits clean HTML (real <ul>/<ol>) from getSemanticHTML
-  quill.on("text-change", () => (model.value = quill.getLength() > 1 ? quill.getSemanticHTML() : ""));
+  let emitted: string | undefined;
+  quill.on("text-change", () => (model.value = emitted = quill.getLength() > 1 ? quill.getSemanticHTML() : ""));
+  // Content can arrive after mount (e.g. loaded from the API); reload unless the change came from typing
+  watch(model, (html) => html !== emitted && quill.clipboard.dangerouslyPasteHTML(html ?? ""), { immediate: true });
 });
 </script>
 
@@ -28,6 +30,8 @@ onMounted(async () => {
 .html-editor {
   border-radius: 8px;
   background: var(--surface);
+  color: var(--ink);
+  font-weight: 400;
   :deep(.ql-toolbar) {
     border: 1px solid var(--line);
     border-radius: 8px 8px 0 0;
@@ -36,6 +40,7 @@ onMounted(async () => {
     border: 1px solid var(--line);
     border-top: 0;
     border-radius: 0 0 8px 8px;
+    height: auto; // Quill's 100% counts the toolbar too and overflows the field
     font: inherit;
     font-size: 15px;
   }

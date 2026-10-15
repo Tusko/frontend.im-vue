@@ -32,16 +32,14 @@ const fail = (e: any) =>
     true
   );
 
-// API <-> form: YYYYMMDD <-> YYYY-MM-DD, string[] <-> "a, b"
+// API <-> form: YYYYMMDD <-> YYYY-MM-DD
 let newId = 0;
 const keyOf = (r: Row) => r.id ?? r._key;
 const toForm = (r: Row): Row => ({
   ...r,
-  ...(r.cats && { cats: r.cats.join(", ") }),
   ...(r.posted_at && { posted_at: String(r.posted_at).replace(/^(\d{4})(\d\d)(\d\d)$/, "$1-$2-$3") }),
 });
 const toApi = ({ _key, ...r }: Row): Row => {
-  if ("cats" in r) r.cats = String(r.cats).split(",").map((c) => c.trim()).filter(Boolean);
   if ("posted_at" in r) r.posted_at = String(r.posted_at ?? "").replaceAll("-", "");
   return r;
 };
@@ -66,7 +64,7 @@ const toggle = (r: Row) => (openKey.value = openKey.value === keyOf(r) ? null : 
 
 function add() {
   const row: Row = { _key: `new-${++newId}`, sort: rows.value.length + 1 };
-  if (section.value === "projects") Object.assign(row, { title: "", url: "", cats: "", posted_at: "", thumbnail: "", cover: "" });
+  if (section.value === "projects") Object.assign(row, { title: "", url: "", cats: [], posted_at: "", thumbnail: "", cover: "" });
   rows.value.push(row);
   openKey.value = row._key;
 }
@@ -110,6 +108,23 @@ async function move(r: Row, d: -1 | 1) {
   if (r.id) await save(r, true);
   if (other.id) await save(other, true);
   say("Order saved");
+}
+
+// Drag to reorder: rows move live while dragging, then changed sorts are saved on drop.
+// Only the grip starts a drag, so text selection inside the open form keeps working.
+const grabbed = ref<Row | null>(null);
+const dragging = ref<Row | null>(null);
+function dragOver(target: Row) {
+  const from = rows.value.indexOf(dragging.value!);
+  const to = rows.value.indexOf(target);
+  if (from < 0 || from === to) return;
+  rows.value.splice(to, 0, rows.value.splice(from, 1)[0]!);
+}
+async function dropped() {
+  dragging.value = grabbed.value = null;
+  const changed = rows.value.filter((r, i) => r.sort !== i + 1 && (r.sort = i + 1));
+  for (const r of changed) if (r.id) await save(r, true);
+  if (changed.length) say("Order saved");
 }
 
 // Center-crop to a square and scale down to `max` px, in the browser
@@ -158,6 +173,9 @@ async function saveOther() {
     busy.value = false;
   }
 }
+
+// Every category already in use, for autocomplete
+const allCats = computed(() => [...new Set(rows.value.flatMap((r) => r.cats ?? []))].sort());
 
 const year = (d?: string) => d?.slice(0, 4) ?? "";
 const heading = computed(() => sections.find((s) => s.key === section.value)!.label);
@@ -224,7 +242,10 @@ const summary = computed(() => {
               <div class="fields">
                 <label class="field wide">Title <input v-model="r.title" required /></label>
                 <label class="field wide">Site URL <input v-model="r.url" type="url" placeholder="https://" /></label>
-                <label class="field">Categories <input v-model="r.cats" placeholder="Front-End, Wordpress" /></label>
+                <div class="field wide">
+                  <span>Categories</span>
+                  <AdminTagInput v-model="r.cats" :suggestions="allCats" :list-id="`cats-${keyOf(r)}`" />
+                </div>
                 <label class="field">Published <input v-model="r.posted_at" type="date" /></label>
                 <div class="actions">
                   <button type="submit" class="btn primary" :disabled="busy">Save project</button>
@@ -240,12 +261,30 @@ const summary = computed(() => {
 
       <!-- Experience: a timeline of positions; the open one unfolds its editor -->
       <ol v-else-if="section === 'experience'" class="entries">
-        <li v-for="r in rows" :key="keyOf(r)" class="entry" :class="{ open: openKey === keyOf(r) }">
-          <button type="button" class="entry-face" :aria-expanded="openKey === keyOf(r)" @click="toggle(r)">
-            <strong>{{ r.company || "New position" }}</strong>
-            <span>{{ r.position }}</span>
-            <time>{{ r.years }}</time>
-          </button>
+        <li
+          v-for="r in rows"
+          :key="keyOf(r)"
+          class="entry"
+          :class="{ open: openKey === keyOf(r), dragging: dragging === r }"
+          :draggable="grabbed === r"
+          @dragstart="dragging = r; $event.dataTransfer!.effectAllowed = 'move'"
+          @dragover.prevent="dragging && dragOver(r)"
+          @dragend="dropped"
+        >
+          <div class="entry-head">
+            <span
+              class="grip"
+              title="Drag to reorder"
+              aria-hidden="true"
+              @pointerdown="grabbed = r"
+              @pointerup="dragging || (grabbed = null)"
+            />
+            <button type="button" class="entry-face" :aria-expanded="openKey === keyOf(r)" @click="toggle(r)">
+              <strong>{{ r.company || "New position" }}</strong>
+              <span>{{ r.position }}</span>
+              <time>{{ r.years }}</time>
+            </button>
+          </div>
           <form v-if="openKey === keyOf(r)" class="fields entry-body" @submit.prevent="save(r)">
             <label class="field">Company <input v-model="r.company" required /></label>
             <label class="field">Company URL <input v-model="r.company_url" type="url" placeholder="https://" /></label>
@@ -567,6 +606,39 @@ const summary = computed(() => {
     border-left-color: var(--teal);
     box-shadow: 0 2px 4px rgb(26 30 34 / 0.06), 0 12px 32px rgb(26 30 34 / 0.08);
   }
+  // the dragged row stays in the list as a dashed slot showing where it will land
+  &.dragging {
+    background: var(--primary-tint);
+    box-shadow: inset 0 0 0 2px var(--primary);
+    border-left-color: var(--primary);
+    > * {
+      opacity: 0.35;
+    }
+  }
+}
+.entry-head {
+  display: flex;
+  align-items: center;
+}
+// six-dot grip drawn with two dotted columns
+.grip {
+  flex: none;
+  align-self: stretch;
+  width: 28px;
+  margin-left: 6px;
+  cursor: grab;
+  background:
+    radial-gradient(circle, var(--muted) 1.5px, transparent 2px) 8px 50% / 6px 6px repeat-y,
+    radial-gradient(circle, var(--muted) 1.5px, transparent 2px) 14px 50% / 6px 6px repeat-y;
+  background-size: 6px 6px;
+  mask: linear-gradient(transparent calc(50% - 9px), #000 calc(50% - 9px), #000 calc(50% + 9px), transparent calc(50% + 9px));
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
+  }
+  &:active {
+    cursor: grabbing;
+  }
 }
 .entry-face {
   display: grid;
@@ -574,7 +646,7 @@ const summary = computed(() => {
   gap: 16px;
   align-items: baseline;
   width: 100%;
-  padding: 16px 20px;
+  padding: 16px 20px 16px 6px;
   border: 0;
   background: none;
   color: inherit;
@@ -599,7 +671,7 @@ const summary = computed(() => {
   }
 }
 .entry-body {
-  padding: 4px 20px 20px;
+  padding: 4px 20px 20px 40px;
   animation: unfold 0.18s ease-out;
 }
 
