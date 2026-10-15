@@ -18,6 +18,7 @@
     "github-colors": "^2.2.21",
     "jose": "^6.2.12",
     "nuxt": "^4.6.1",
+    "quill": "^2",
     "vue-chartjs": "^5.3.4"
   },
   "devDependencies": {

@@ -1,292 +1,766 @@
 <script setup lang="ts">
-interface Field {
-  key: string;
-  label: string;
-  type?: "textarea" | "date" | "number" | "image";
-}
 type Row = Record<string, any>;
-type Table = "experience" | "projects";
+type Section = "projects" | "experience" | "other";
 
-const tables: Record<Table, { label: string; fields: Field[] }> = {
-  experience: {
-    label: "Experience",
-    fields: [
-      { key: "company", label: "Company" },
-      { key: "company_url", label: "Company URL" },
-      { key: "company_desc", label: "Company description" },
-      { key: "position", label: "Position" },
-      { key: "years", label: "Years" },
-      { key: "list", label: "Responsibilities (HTML)", type: "textarea" },
-    ],
-  },
-  projects: {
-    label: "Projects",
-    fields: [
-      { key: "title", label: "Title" },
-      { key: "url", label: "URL" },
-      { key: "cats", label: "Categories (comma separated)" },
-      { key: "posted_at", label: "Posted", type: "date" },
-      { key: "thumbnail", label: "Thumbnail", type: "image" },
-      { key: "cover", label: "Cover", type: "image" },
-    ],
-  },
-};
+const sections: { key: Section; label: string }[] = [
+  { key: "projects", label: "Projects" },
+  { key: "experience", label: "Experience" },
+  { key: "other", label: "Other projects" },
+];
 
-const tab = ref<Table | "other">("experience");
+const section = ref<Section>("projects");
 const rows = ref<Row[]>([]);
 const otherProjects = ref("");
-const status = ref("");
+const openKey = ref<string | number | null>(null);
+const busy = ref(false);
+const status = ref<{ text: string; error?: boolean } | null>(null);
+const counts = reactive<Partial<Record<Section, number>>>({});
 
 useHead({ title: "Admin", meta: [{ name: "robots", content: "noindex" }] });
 
-const fail = (e: any) => {
-  status.value =
+let toastTimer: ReturnType<typeof setTimeout>;
+function say(text: string, error = false) {
+  status.value = { text, error };
+  clearTimeout(toastTimer);
+  if (!error) toastTimer = setTimeout(() => (status.value = null), 3000);
+}
+const fail = (e: any) =>
+  say(
     e?.statusCode === 401 || e?.status === 401
-      ? "Not authorized — open via Cloudflare Access"
-      : e?.data?.statusMessage || e?.statusMessage || e?.message || "Error";
-};
+      ? "You're signed out. Reload the page to sign in with Cloudflare Access."
+      : e?.data?.statusMessage || e?.statusMessage || e?.message || "Something went wrong",
+    true
+  );
 
 // API <-> form: YYYYMMDD <-> YYYY-MM-DD, string[] <-> "a, b"
+let newId = 0;
+const keyOf = (r: Row) => r.id ?? r._key;
 const toForm = (r: Row): Row => ({
   ...r,
   ...(r.cats && { cats: r.cats.join(", ") }),
-  ...(r.posted_at && {
-    posted_at: String(r.posted_at).replace(/^(\d{4})(\d\d)(\d\d)$/, "$1-$2-$3"),
-  }),
+  ...(r.posted_at && { posted_at: String(r.posted_at).replace(/^(\d{4})(\d\d)(\d\d)$/, "$1-$2-$3") }),
 });
-const toApi = (r: Row): Row => {
-  const out = { ...r };
-  if ("cats" in out)
-    out.cats = String(out.cats)
-      .split(",")
-      .map((c) => c.trim())
-      .filter(Boolean);
-  if ("posted_at" in out)
-    out.posted_at = String(out.posted_at ?? "").replaceAll("-", "");
-  return out;
+const toApi = ({ _key, ...r }: Row): Row => {
+  if ("cats" in r) r.cats = String(r.cats).split(",").map((c) => c.trim()).filter(Boolean);
+  if ("posted_at" in r) r.posted_at = String(r.posted_at ?? "").replaceAll("-", "");
+  return r;
 };
 
 async function load() {
-  status.value = "";
+  openKey.value = null;
   try {
-    if (tab.value === "other") {
+    if (section.value === "other") {
       otherProjects.value = (await $fetch<{ other_projects: string }>("/api/admin/settings")).other_projects;
     } else {
-      rows.value = (await $fetch<Row[]>(`/api/admin/${tab.value}`)).map(toForm);
+      rows.value = (await $fetch<Row[]>(`/api/admin/${section.value}`)).map(toForm);
+      counts[section.value] = rows.value.length;
     }
   } catch (e) {
     fail(e);
   }
 }
 onMounted(load);
-watch(tab, load);
+watch(section, load);
 
-const table = computed(() => (tab.value === "other" ? null : tables[tab.value]));
+const toggle = (r: Row) => (openKey.value = openKey.value === keyOf(r) ? null : keyOf(r));
 
-const add = () => rows.value.push({ sort: rows.value.length + 1, cats: "" });
+function add() {
+  const row: Row = { _key: `new-${++newId}`, sort: rows.value.length + 1 };
+  if (section.value === "projects") Object.assign(row, { title: "", url: "", cats: "", posted_at: "", thumbnail: "", cover: "" });
+  rows.value.push(row);
+  openKey.value = row._key;
+}
 
-async function save(i: number) {
+async function save(r: Row, quiet = false) {
+  busy.value = true;
   try {
-    const saved = await $fetch<Row>(`/api/admin/${tab.value}`, { method: "POST", body: toApi(rows.value[i]!) });
-    rows.value[i] = toForm(saved);
-    status.value = "Saved";
+    const saved = toForm(await $fetch<Row>(`/api/admin/${section.value}`, { method: "POST", body: toApi(r) }));
+    const wasOpen = openKey.value === keyOf(r);
+    rows.value[rows.value.indexOf(r)] = saved;
+    if (wasOpen) openKey.value = saved.id;
+    counts[section.value as "projects"] = rows.value.length;
+    if (!quiet) say("Saved");
+  } catch (e) {
+    fail(e);
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function remove(r: Row) {
+  if (!confirm(`Delete "${r.title || r.company || "this entry"}"? This can't be undone.`)) return;
+  try {
+    if (r.id) await $fetch(`/api/admin/${section.value}`, { method: "DELETE", query: { id: r.id } });
+    rows.value.splice(rows.value.indexOf(r), 1);
+    counts[section.value as "projects"] = rows.value.length;
+    say("Deleted");
   } catch (e) {
     fail(e);
   }
 }
 
-async function remove(i: number) {
-  const row = rows.value[i]!;
-  if (!confirm("Delete this row?")) return;
-  try {
-    if (row.id) await $fetch(`/api/admin/${tab.value}`, { method: "DELETE", query: { id: row.id } });
-    rows.value.splice(i, 1);
-    status.value = "Deleted";
-  } catch (e) {
-    fail(e);
-  }
+// Swap sort with the neighbour and save both
+async function move(r: Row, d: -1 | 1) {
+  const i = rows.value.indexOf(r);
+  const other = rows.value[i + d];
+  if (!other) return;
+  [r.sort, other.sort] = [other.sort, r.sort];
+  if (r.sort === other.sort) r.sort += d;
+  [rows.value[i], rows.value[i + d]] = [other, r];
+  if (r.id) await save(r, true);
+  if (other.id) await save(other, true);
+  say("Order saved");
 }
 
-// swap sort values with the neighbour and save both
-async function move(i: number, d: -1 | 1) {
-  const a = rows.value[i]!;
-  const b = rows.value[i + d]!;
-  [a.sort, b.sort] = [b.sort, a.sort];
-  if (a.sort === b.sort) a.sort += d; // equal sorts can't be swapped; force order
-  [rows.value[i], rows.value[i + d]] = [b, a];
-  if (a.id) await save(rows.value.indexOf(a));
-  if (b.id) await save(rows.value.indexOf(b));
+// Center-crop to a square and scale down to `max` px, in the browser
+async function square(file: File, max: number) {
+  const img = await createImageBitmap(file);
+  const side = Math.min(img.width, img.height);
+  const size = Math.min(side, max);
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  canvas.getContext("2d")!.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+  img.close();
+  return new Promise<Blob>((ok, no) => canvas.toBlob((b) => (b ? ok(b) : no(new Error("Couldn't process the image"))), "image/webp", 0.86));
 }
 
-async function upload(e: Event, row: Row, key: string) {
-  const file = (e.target as HTMLInputElement).files?.[0];
-  if (!file) return;
+async function uploadBlob(blob: Blob) {
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", blob, `image.${blob.type.split("/")[1]}`);
+  return (await $fetch<{ url: string }>("/api/admin/upload", { method: "POST", body })).url;
+}
+
+async function replaceImage(e: Event, r: Row) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file) return;
+  busy.value = true;
   try {
-    row[key] = (await $fetch<{ url: string }>("/api/admin/upload", { method: "POST", body })).url;
-    status.value = "Uploaded — remember to Save the row";
+    const [cover, thumbnail] = await Promise.all([square(file, 1024), square(file, 256)]);
+    [r.cover, r.thumbnail] = await Promise.all([uploadBlob(cover), uploadBlob(thumbnail)]);
+    say("Image ready. Save the project to publish it.");
   } catch (err) {
     fail(err);
+  } finally {
+    busy.value = false;
   }
 }
 
 async function saveOther() {
+  busy.value = true;
   try {
     await $fetch("/api/admin/settings", { method: "PUT", body: { other_projects: otherProjects.value } });
-    status.value = "Saved";
+    say("Saved");
   } catch (e) {
     fail(e);
+  } finally {
+    busy.value = false;
   }
 }
+
+const year = (d?: string) => d?.slice(0, 4) ?? "";
+const heading = computed(() => sections.find((s) => s.key === section.value)!.label);
+const summary = computed(() => {
+  if (section.value === "other") return "Free-form text shown under the project grid on the home page.";
+  const n = rows.value.length;
+  const noun = section.value === "projects" ? "project" : "position";
+  return n ? `${n} ${noun}${n === 1 ? "" : "s"}. Select one to edit it.` : "";
+});
 </script>
 
 <template>
-  <main class="admin">
-    <h1>Admin</h1>
-    <nav class="tabs" aria-label="Sections">
-      <button
-        v-for="(t, k) in tables"
-        :key="k"
-        type="button"
-        :class="{ on: tab === k }"
-        :aria-pressed="tab === k"
-        @click="tab = k"
-      >
-        {{ t.label }}
-      </button>
-      <button type="button" :class="{ on: tab === 'other' }" :aria-pressed="tab === 'other'" @click="tab = 'other'">
-        Other projects
-      </button>
-    </nav>
-    <p class="status" role="status">{{ status }}</p>
+  <div class="admin">
+    <aside class="rail">
+      <a href="/" class="brand" target="_blank" rel="noopener">frontend.im</a>
+      <nav aria-label="Sections">
+        <button
+          v-for="s in sections"
+          :key="s.key"
+          type="button"
+          :aria-current="section === s.key ? 'page' : undefined"
+          @click="section = s.key"
+        >
+          <span>{{ s.label }}</span>
+          <small v-if="counts[s.key] !== undefined">{{ counts[s.key] }}</small>
+        </button>
+      </nav>
+      <a href="/" class="rail-foot" target="_blank" rel="noopener">Open the site</a>
+    </aside>
 
-    <form v-if="tab === 'other'" @submit.prevent="saveOther">
-      <label>
-        Other projects (HTML)
-        <textarea v-model="otherProjects" rows="14" />
-      </label>
-      <button type="submit" class="primary">Save</button>
-    </form>
+    <main class="stage">
+      <header class="stage-head">
+        <div>
+          <h1>{{ heading }}</h1>
+          <p>{{ summary }}</p>
+        </div>
+        <button v-if="section !== 'other'" type="button" class="btn primary" @click="add">
+          {{ section === "projects" ? "Add project" : "Add position" }}
+        </button>
+      </header>
 
-    <template v-else-if="table">
-      <form v-for="(row, i) in rows" :key="row.id ?? `new-${i}`" class="row" @submit.prevent="save(i)">
-        <label class="sort">
-          Sort
-          <input v-model.number="row.sort" type="number" />
-        </label>
-        <label v-for="f in table.fields" :key="f.key" :class="{ wide: f.type === 'textarea' }">
-          {{ f.label }}
-          <textarea v-if="f.type === 'textarea'" v-model="row[f.key]" rows="6" />
-          <template v-else-if="f.type === 'image'">
-            <input v-model="row[f.key]" type="text" />
-            <input type="file" accept="image/*" :aria-label="`${f.label} file`" @change="upload($event, row, f.key)" />
-            <img v-if="row[f.key]" :src="row[f.key]" alt="" />
-          </template>
-          <input v-else v-model="row[f.key]" :type="f.type ?? 'text'" />
-        </label>
+      <!-- Projects: square previews; the open one expands a full-width panel under its row -->
+      <ul v-if="section === 'projects'" class="tiles">
+        <template v-for="r in rows" :key="keyOf(r)">
+          <li class="tile" :class="{ open: openKey === keyOf(r) }">
+            <button type="button" :aria-expanded="openKey === keyOf(r)" @click="toggle(r)">
+              <img v-if="r.thumbnail || r.cover" :src="r.thumbnail || r.cover" alt="" loading="lazy" />
+              <span v-else class="tile-blank">{{ (r.title || "New")[0] }}</span>
+              <span class="tile-title" v-html="r.title || 'Untitled project'" />
+              <span class="tile-meta">{{ year(r.posted_at) }}</span>
+            </button>
+          </li>
+          <li v-if="openKey === keyOf(r)" class="detail">
+            <form @submit.prevent="save(r)">
+              <div class="detail-image">
+                <img v-if="r.cover || r.thumbnail" :src="r.cover || r.thumbnail" alt="" />
+                <span v-else class="tile-blank">No image</span>
+                <label class="btn">
+                  {{ r.cover ? "Replace image" : "Upload image" }}
+                  <input type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/gif" class="sr-only" @change="replaceImage($event, r)" />
+                </label>
+                <p class="hint">Cropped to a square, up to 1024 × 1024.</p>
+              </div>
+              <div class="fields">
+                <label class="field wide">Title <input v-model="r.title" required /></label>
+                <label class="field wide">Site URL <input v-model="r.url" type="url" placeholder="https://" /></label>
+                <label class="field">Categories <input v-model="r.cats" placeholder="Front-End, Wordpress" /></label>
+                <label class="field">Published <input v-model="r.posted_at" type="date" /></label>
+                <div class="actions">
+                  <button type="submit" class="btn primary" :disabled="busy">Save project</button>
+                  <button type="button" class="btn" :disabled="busy || rows.indexOf(r) === 0" @click="move(r, -1)">Move earlier</button>
+                  <button type="button" class="btn" :disabled="busy || rows.indexOf(r) === rows.length - 1" @click="move(r, 1)">Move later</button>
+                  <button type="button" class="btn danger" @click="remove(r)">Delete</button>
+                </div>
+              </div>
+            </form>
+          </li>
+        </template>
+      </ul>
+
+      <!-- Experience: a timeline of positions; the open one unfolds its editor -->
+      <ol v-else-if="section === 'experience'" class="entries">
+        <li v-for="r in rows" :key="keyOf(r)" class="entry" :class="{ open: openKey === keyOf(r) }">
+          <button type="button" class="entry-face" :aria-expanded="openKey === keyOf(r)" @click="toggle(r)">
+            <strong>{{ r.company || "New position" }}</strong>
+            <span>{{ r.position }}</span>
+            <time>{{ r.years }}</time>
+          </button>
+          <form v-if="openKey === keyOf(r)" class="fields entry-body" @submit.prevent="save(r)">
+            <label class="field">Company <input v-model="r.company" required /></label>
+            <label class="field">Company URL <input v-model="r.company_url" type="url" placeholder="https://" /></label>
+            <label class="field">About the company <input v-model="r.company_desc" /></label>
+            <label class="field">Position <input v-model="r.position" /></label>
+            <label class="field">Years <input v-model="r.years" placeholder="08.2025 / Present" /></label>
+            <div class="field wide">
+              <span>Responsibilities</span>
+              <AdminHtmlEditor v-model="r.list" label="Responsibilities" />
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn primary" :disabled="busy">Save position</button>
+              <button type="button" class="btn" :disabled="busy || rows.indexOf(r) === 0" @click="move(r, -1)">Move earlier</button>
+              <button type="button" class="btn" :disabled="busy || rows.indexOf(r) === rows.length - 1" @click="move(r, 1)">Move later</button>
+              <button type="button" class="btn danger" @click="remove(r)">Delete</button>
+            </div>
+          </form>
+        </li>
+      </ol>
+
+      <form v-else class="panel" @submit.prevent="saveOther">
+        <AdminHtmlEditor v-model="otherProjects" label="Other projects" />
         <div class="actions">
-          <button type="submit" class="primary">Save</button>
-          <button type="button" :disabled="i === 0" aria-label="Move up" @click="move(i, -1)">↑</button>
-          <button type="button" :disabled="i === rows.length - 1" aria-label="Move down" @click="move(i, 1)">↓</button>
-          <button type="button" class="danger" @click="remove(i)">Delete</button>
+          <button type="submit" class="btn primary" :disabled="busy">Save text</button>
         </div>
       </form>
-      <button type="button" class="primary" @click="add">Add {{ table.label.toLowerCase() }}</button>
-    </template>
-  </main>
+
+      <p v-if="section !== 'other' && !rows.length" class="empty">
+        Nothing here yet. Use “{{ section === "projects" ? "Add project" : "Add position" }}” to create the first one.
+      </p>
+    </main>
+
+    <p class="toast" :class="{ error: status?.error, shown: status }" role="status" aria-live="polite">
+      {{ status?.text }}
+      <button v-if="status?.error" type="button" aria-label="Dismiss" @click="status = null">×</button>
+    </p>
+  </div>
 </template>
 
 <style scoped lang="scss">
 .admin {
-  max-width: var(--row);
-  margin: 0 auto;
-  padding: 2em 1em 4em;
-  font-family: var(--font2);
-  color: var(--dark);
-  background: var(--white);
+  --canvas: #eef2f6;
+  --surface: #fff;
+  --ink: #1a1e22;
+  --muted: #5b6672;
+  --line: #dbe2ea;
+  --primary: #0070f3;
+  --primary-tint: #e6f0fe;
+  --teal: #119da4;
+  --danger: #c9304f;
+
+  display: grid;
+  grid-template-columns: 232px 1fr;
   min-height: 100vh;
-}
-h1 {
-  font-family: var(--font);
-  margin: 0 0 0.5em;
-}
-.tabs {
-  display: flex;
-  gap: 0.5em;
-  button.on {
-    background: var(--dark);
-    color: var(--white);
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font2);
+  font-size: 15px;
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
   }
 }
-.status {
-  min-height: 1.5em;
-  color: var(--bluelight);
-}
-.row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16em, 1fr));
-  gap: 0.75em 1em;
-  padding: 1em;
-  margin-bottom: 1em;
-  background: var(--light);
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-}
-label {
+
+/* Rail */
+.rail {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 0.25em;
-  font-size: 0.85em;
+  gap: 28px;
+  padding: 24px 16px;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  @media (max-width: 760px) {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  nav {
+    display: grid;
+    gap: 4px;
+    @media (max-width: 760px) {
+      display: flex;
+      order: 3;
+      width: 100%;
+      overflow-x: auto;
+    }
+  }
+  nav button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    &:hover {
+      color: var(--ink);
+      background: var(--canvas);
+    }
+    &[aria-current="page"] {
+      background: var(--primary);
+      color: #fff;
+      small {
+        background: rgb(255 255 255 / 0.22);
+        color: #fff;
+      }
+    }
+    small {
+      min-width: 26px;
+      padding: 1px 8px;
+      border-radius: 999px;
+      background: var(--primary-tint);
+      color: var(--primary);
+      font-size: 12px;
+      text-align: center;
+    }
+  }
+}
+.brand {
+  padding: 0 14px;
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ink);
+  text-decoration: none;
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 24px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 14px 0 0 var(--primary);
+  }
+}
+.rail-foot {
+  margin-top: auto;
+  padding: 0 14px;
+  color: var(--muted);
+  font-size: 14px;
+  @media (max-width: 760px) {
+    margin: 0 0 0 auto;
+  }
+}
+
+/* Stage */
+.stage {
+  padding: 32px clamp(16px, 4vw, 48px) 96px;
+  min-width: 0;
+}
+.stage-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  max-width: 1200px;
+  h1 {
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  p {
+    margin-top: 6px;
+    color: var(--muted);
+  }
+}
+
+/* Project tiles */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  grid-auto-flow: dense; // later tiles backfill the open tile's row; the panel takes the next row
+  gap: 16px;
+  max-width: 1200px;
+  list-style: none;
+}
+.tile {
+  position: relative;
+  > button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgb(26 30 34 / 0.06), 0 2px 8px rgb(26 30 34 / 0.05);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+    &:hover {
+      box-shadow: 0 2px 4px rgb(26 30 34 / 0.08), 0 8px 20px rgb(26 30 34 / 0.08);
+    }
+  }
+  img {
+    display: block;
+    object-fit: cover;
+  }
+  img,
+  .tile-blank {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--canvas);
+  }
+  .tile-title {
+    // titles may carry a <br><small> subtitle from WordPress; keep tiles one line
+    :deep(br),
+    :deep(small) {
+      display: none;
+    }
+    display: block;
+    padding: 10px 12px 0;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tile-meta {
+    display: block;
+    min-height: 1.4em;
+    padding: 0 12px 10px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  &.open > button {
+    outline: 3px solid var(--teal);
+    outline-offset: 2px;
+  }
+  // notch that points from the open tile to its panel
+  &.open::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -17px;
+    width: 16px;
+    height: 16px;
+    background: var(--surface);
+    transform: translateX(-50%) rotate(45deg);
+    border-radius: 3px 0 0 0;
+  }
+}
+.tile-blank {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 28px;
+  font-weight: 600;
+}
+.detail {
+  grid-column: 1 / -1;
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 2px 4px rgb(26 30 34 / 0.06), 0 12px 32px rgb(26 30 34 / 0.08);
+  animation: unfold 0.18s ease-out;
+  form {
+    display: grid;
+    grid-template-columns: minmax(180px, 280px) 1fr;
+    gap: 28px;
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+.detail-image {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  img,
+  .tile-blank {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 12px;
+    background: var(--canvas);
+    font-size: 15px;
+  }
+  .btn {
+    justify-self: start;
+  }
+}
+.hint {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Experience entries */
+.entries {
+  display: grid;
+  gap: 10px;
+  max-width: 960px;
+  list-style: none;
+}
+.entry {
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(26 30 34 / 0.06);
+  border-left: 4px solid transparent;
+  &.open {
+    border-left-color: var(--teal);
+    box-shadow: 0 2px 4px rgb(26 30 34 / 0.06), 0 12px 32px rgb(26 30 34 / 0.08);
+  }
+}
+.entry-face {
+  display: grid;
+  grid-template-columns: minmax(8em, 14em) 1fr auto;
+  gap: 16px;
+  align-items: baseline;
+  width: 100%;
+  padding: 16px 20px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  strong {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  span {
+    color: var(--muted);
+  }
+  time {
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+.entry-body {
+  padding: 4px 20px 20px;
+  animation: unfold 0.18s ease-out;
+}
+
+/* Forms */
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-content: start;
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
   font-weight: 600;
   &.wide {
     grid-column: 1 / -1;
   }
+  input {
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 400;
+    &:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-tint);
+    }
+  }
 }
-input,
-textarea {
-  font: inherit;
-  font-weight: 400;
-  padding: 0.4em 0.6em;
-  border: 1px solid #d0d7de;
-  border-radius: 4px;
-  background: var(--white);
-}
-textarea {
-  font-family: var(--font);
-  font-size: 0.9em;
-}
-img {
-  max-width: 8em;
-  max-height: 5em;
-  object-fit: cover;
+.panel {
+  display: grid;
+  gap: 16px;
+  max-width: 960px;
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(26 30 34 / 0.06);
 }
 .actions {
   grid-column: 1 / -1;
   display: flex;
-  gap: 0.5em;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
 }
-button {
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
   font: inherit;
-  padding: 0.4em 0.9em;
-  border: 1px solid var(--dark);
-  border-radius: 4px;
-  background: var(--white);
-  color: var(--dark);
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
+  white-space: nowrap;
+  &:hover:not(:disabled) {
+    border-color: var(--muted);
+  }
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.45;
     cursor: default;
   }
   &.primary {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: var(--white);
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    &:hover:not(:disabled) {
+      background: #005fd0;
+    }
   }
   &.danger {
     margin-left: auto;
-    border-color: var(--red);
-    color: var(--red);
+    color: var(--danger);
+    &:hover:not(:disabled) {
+      border-color: var(--danger);
+    }
+  }
+}
+.admin :is(button, a, input, label):focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+.btn:focus-within {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.empty {
+  max-width: 40em;
+  padding: 40px 0;
+  color: var(--muted);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(420px, calc(100vw - 48px));
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 0 8px 24px rgb(26 30 34 / 0.25);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  &.shown {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  &.error {
+    background: var(--danger);
+  }
+  button {
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+}
+
+@keyframes unfold {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .detail,
+  .entry-body {
+    animation: none;
+  }
+  .toast,
+  .tile > button {
+    transition: none;
   }
 }
 </style>
