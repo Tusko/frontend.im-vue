@@ -1,37 +1,30 @@
 .projects {
   &-grid {
     padding-bottom: 0;
-    flex-wrap: wrap;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    @media screen and (max-width: 1200px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    @media screen and (max-width: 1023px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
     @media screen and (max-width: 640px) {
-      display: block;
+      grid-template-columns: 1fr;
     }
     &-item {
       position: relative;
       overflow: hidden;
-      flex-basis: 25%;
-      @media screen and (max-width: 1200px) {
-        flex-basis: 33.333%;
+      background: var(--light);
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        object-fit: cover;
       }
-      @media screen and (max-width: 1023px) {
-        flex-basis: 50%;
-      }
-      figure {
-        position: relative;
-        &:after {
-          padding-bottom: 100%;
-          display: block;
-          content: "";
-        }
-        img {
-          position: absolute;
-          object-fit: cover;
-          height: 100%;
-          width: 100%;
-          inset: 0;
-        }
-      }
-      &:hover {
+      &:hover,
+      &:focus-within {
         > div {
           transform: translateY(-100%);
         }
