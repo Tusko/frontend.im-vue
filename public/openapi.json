@@ -1,0 +1,78 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "frontend.im public API",
+    "version": "1.0.0",
+    "description": "Read-only data behind Tusko Trush's portfolio at https://frontend.im. No authentication."
+  },
+  "servers": [{ "url": "https://frontend.im" }],
+  "paths": {
+    "/api/content": {
+      "get": {
+        "summary": "Work experience, featured projects and the closing text",
+        "responses": {
+          "200": {
+            "description": "Portfolio content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "experience": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "company": { "type": "string" },
+                          "company_url": { "type": "string" },
+                          "company_desc": { "type": "string" },
+                          "position": { "type": "string" },
+                          "years": { "type": "string" },
+                          "list": { "type": "string", "description": "Responsibilities as HTML" }
+                        }
+                      }
+                    },
+                    "otherProjects": { "type": "string", "description": "HTML" },
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "title": { "type": "string" },
+                          "url": { "type": "string" },
+                          "cats": { "type": "array", "items": { "type": "string" } },
+                          "postedAt": { "type": "string", "description": "YYYYMMDD" },
+                          "thumbnail": { "type": "string" },
+                          "cover": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/github": {
+      "get": {
+        "summary": "GitHub profile and top public repositories (cached 24h)",
+        "responses": { "200": { "description": "Profile and repos", "content": { "application/json": {} } } }
+      }
+    },
+    "/api/wakatime": {
+      "get": {
+        "summary": "Recent coding activity and language share from WakaTime (cached 24h)",
+        "responses": { "200": { "description": "Activity and languages", "content": { "application/json": {} } } }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "summary": "The whole portfolio as Markdown",
+        "responses": { "200": { "description": "Markdown", "content": { "text/markdown": {} } } }
+      }
+    }
+  }
+}

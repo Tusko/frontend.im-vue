@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "frontend-im",
+      "type": "skill-md",
+      "description": "Learn about Tusko Trush from frontend.im: profile, work experience, portfolio projects, CV and contact.",
+      "url": "/.well-known/agent-skills/frontend-im/SKILL.md",
+      "digest": "sha256:985a0a38367f9bee07eb1818d8172c0b674cbc09ac835aa42f4ff7dc3044f51f"
+    }
+  ]
+}
