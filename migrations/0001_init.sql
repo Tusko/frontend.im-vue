@@ -1,0 +1,26 @@
+CREATE TABLE experience (
+  id INTEGER PRIMARY KEY,
+  sort INTEGER NOT NULL DEFAULT 0,
+  company TEXT NOT NULL DEFAULT '',
+  company_url TEXT NOT NULL DEFAULT '',
+  company_desc TEXT NOT NULL DEFAULT '',
+  position TEXT NOT NULL DEFAULT '',
+  years TEXT NOT NULL DEFAULT '',
+  list TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE projects (
+  id INTEGER PRIMARY KEY,
+  sort INTEGER NOT NULL DEFAULT 0,
+  title TEXT NOT NULL DEFAULT '',
+  url TEXT NOT NULL DEFAULT '',
+  cats TEXT NOT NULL DEFAULT '[]', -- JSON array of strings
+  posted_at TEXT NOT NULL DEFAULT '', -- YYYYMMDD
+  thumbnail TEXT NOT NULL DEFAULT '',
+  cover TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT ''
+);

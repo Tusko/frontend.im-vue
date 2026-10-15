@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "frontend-im",
+  "account_id": "bc9e0075efe8746e2d95fdd57a512320",
+  "main": "./.output/server/index.mjs",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./.output/public",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [{ "binding": "CACHE", "id": "28e7a2de993a4c0e80ca2d928a700762" }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "frontend-im",
+      "database_id": "a3a7915a-08d9-4823-a392-84160c9cc091",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "frontend-im-media" }],
+  // Zone routes over the existing proxied DNS records (custom domains would need those records deleted)
+  "routes": [
+    { "pattern": "frontend.im/*", "zone_name": "frontend.im" },
+    { "pattern": "www.frontend.im/*", "zone_name": "frontend.im" }
+  ],
+  "workers_dev": true,
+  "observability": { "enabled": true }
+  // GitHub token: `wrangler secret put NUXT_GITHUB_TOKEN`
+}

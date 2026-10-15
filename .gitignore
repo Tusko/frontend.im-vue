@@ -22,3 +22,9 @@ yarn-error.log*
 *.sw?
 
 /live/
+
+# Nuxt / Cloudflare
+.nuxt
+.output
+.wrangler
+.dev.vars
