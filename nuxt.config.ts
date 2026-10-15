@@ -6,8 +6,23 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: "en" },
       title: "Tusko Trush - Front-End/Vue.js/Wordpress developer",
+      meta: [
+        {
+          name: "description",
+          content:
+            "Tusko Trush — front-end developer from Ukraine building fast, accessible sites with Vue.js, Nuxt and WordPress. Portfolio, featured projects and CV.",
+        },
+        { property: "og:title", content: "Tusko Trush - Front-End/Vue.js/Wordpress developer" },
+        {
+          property: "og:description",
+          content: "Front-end developer building fast, accessible sites with Vue.js, Nuxt and WordPress.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "theme-color", content: "#1a1e22" },
+      ],
       link: [
-        { rel: "icon", href: "/favicon.ico" },
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        { rel: "icon", href: "/favicon.ico", sizes: "any" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
         {

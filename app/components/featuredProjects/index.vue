@@ -36,7 +36,7 @@ const { data } = await useContent();
 const transform = useRequestURL().hostname.endsWith("frontend.im");
 const widths = [256, 384, 512, 768, 1024];
 const resized = (src: string, w: number) =>
-  transform ? `/cdn-cgi/image/width=${w},quality=80,format=auto/${src.replace(/^\//, "")}` : src;
+  transform ? `/cdn-cgi/image/width=${w},height=${w},fit=cover,quality=80,format=auto/${src.replace(/^\//, "")}` : src;
 const srcset = (src: string) => (transform ? widths.map((w) => `${resized(src, w)} ${w}w`).join(", ") : undefined);
 // Matches the grid columns in index.scss: 4 → 3 → 2 → 1
 const sizes = "(max-width: 640px) 100vw, (max-width: 1023px) 50vw, (max-width: 1200px) 33vw, 25vw";
