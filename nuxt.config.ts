@@ -29,6 +29,13 @@ export default defineNuxtConfig({
 
   // Admin is a client-only SPA shell; data comes from /api/admin/** behind Access
   routeRules: {
+    // Discovery for crawlers and agents; Vary because "/" also answers Accept: text/markdown
+    "/": {
+      headers: {
+        Link: '</sitemap.xml>; rel="sitemap", </llms.txt>; rel="alternate"; type="text/markdown"',
+        Vary: "Accept",
+      },
+    },
     "/admin": { ssr: false },
     "/admin/**": { ssr: false },
   },
