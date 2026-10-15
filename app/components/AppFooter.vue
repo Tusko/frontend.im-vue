@@ -1,16 +1,17 @@
 <template>
   <footer>
     <div class="row">
-      <p>Copyright &copy; {{ year }}</p>
+      <p>&copy; 2014–{{ year }} Tusko Trush</p>
       <p>
         Made with
-        <a :href="links.arsmoon" class="heart" target="_blank">&hearts;</a> and
-        <a :href="links.vue" rel="noopener nofollow" target="_blank">Vue.js</a>
+        <span class="heart" aria-label="love">&hearts;</span> and
+        <a :href="links.nuxt" rel="noopener nofollow" target="_blank">Nuxt</a>, served from
+        <a :href="links.workers" rel="noopener nofollow" target="_blank">Cloudflare Workers</a>
       </p>
       <p>
         <a
           href="https://wakatime.com/@36bf7ce8-0e11-4e63-bea7-06612a86747f"
-          ref="nofollow noopener"
+          rel="nofollow noopener"
           target="_blank"
           ><img
             src="https://wakatime.com/badge/user/36bf7ce8-0e11-4e63-bea7-06612a86747f.svg"
@@ -29,12 +30,11 @@ footer {
   text-align: center;
   overflow: hidden;
   font-size: 12px;
+  .heart {
+    font-size: 14px;
+  }
   a {
     color: var(--light);
-    &.heart {
-      text-decoration: none;
-      font-size: 14px;
-    }
     &:hover {
       color: var(--blue);
     }
@@ -51,8 +51,8 @@ export default {
   data: () => ({
     year: new Date().getFullYear(),
     links: {
-      vue: "https://vuejs.org/",
-      arsmoon: "https://arsmoon.com",
+      nuxt: "https://nuxt.com/",
+      workers: "https://workers.cloudflare.com/",
     },
   }),
 };
