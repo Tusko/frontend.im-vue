@@ -123,7 +123,7 @@ function dragOver(target: Row) {
 async function dropped() {
   dragging.value = grabbed.value = null;
   const changed = rows.value.filter((r, i) => r.sort !== i + 1 && (r.sort = i + 1));
-  for (const r of changed) if (r.id) await save(r, true);
+  await Promise.all(changed.filter((r) => r.id).map((r) => save(r, true)));
   if (changed.length) say("Order saved");
 }
 
@@ -183,7 +183,8 @@ const summary = computed(() => {
   if (section.value === "other") return "Free-form text shown under the project grid on the home page.";
   const n = rows.value.length;
   const noun = section.value === "projects" ? "project" : "position";
-  return n ? `${n} ${noun}${n === 1 ? "" : "s"}. Select one to edit it.` : "";
+  const drag = section.value === "projects" ? "drag a closed tile" : "drag the dots";
+  return n ? `${n} ${noun}${n === 1 ? "" : "s"}. Select one to edit it, or ${drag} to reorder.` : "";
 });
 </script>
 
@@ -220,9 +221,17 @@ const summary = computed(() => {
       <!-- Projects: square previews; the open one expands a full-width panel under its row -->
       <ul v-if="section === 'projects'" class="tiles">
         <template v-for="r in rows" :key="keyOf(r)">
-          <li class="tile" :class="{ open: openKey === keyOf(r) }">
+          <!-- tiles drag to reorder only while every project is collapsed -->
+          <li
+            class="tile"
+            :class="{ open: openKey === keyOf(r), dragging: dragging === r, sortable: openKey === null }"
+            :draggable="openKey === null"
+            @dragstart="dragging = r; $event.dataTransfer!.effectAllowed = 'move'"
+            @dragover.prevent="dragging && dragOver(r)"
+            @dragend="dropped"
+          >
             <button type="button" :aria-expanded="openKey === keyOf(r)" @click="toggle(r)">
-              <img v-if="r.thumbnail || r.cover" :src="r.thumbnail || r.cover" alt="" loading="lazy" />
+              <img v-if="r.thumbnail || r.cover" :src="r.thumbnail || r.cover" alt="" loading="lazy" draggable="false" />
               <span v-else class="tile-blank">{{ (r.title || "New")[0] }}</span>
               <span class="tile-title" v-html="r.title || 'Untitled project'" />
               <span class="tile-meta">{{ year(r.posted_at) }}</span>
@@ -531,6 +540,15 @@ const summary = computed(() => {
   &.open > button {
     outline: 3px solid var(--teal);
     outline-offset: 2px;
+  }
+  &.sortable > button {
+    cursor: grab;
+  }
+  // the dragged tile stays in the grid as a slot showing where it will land
+  &.dragging > button {
+    outline: 2px dashed var(--primary);
+    outline-offset: 2px;
+    opacity: 0.35;
   }
   // notch that points from the open tile to its panel
   &.open::after {

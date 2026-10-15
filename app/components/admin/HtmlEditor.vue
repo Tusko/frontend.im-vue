@@ -14,9 +14,11 @@ onMounted(async () => {
     },
   });
   quill.root.setAttribute("aria-label", props.label);
-  // Quill 2 emits clean HTML (real <ul>/<ol>) from getSemanticHTML
+  // Quill 2 emits clean HTML (real <ul>/<ol>) from getSemanticHTML, but turns every space
+  // into &nbsp; (slab/quill#4509), which stops text from wrapping on the site
   let emitted: string | undefined;
-  quill.on("text-change", () => (model.value = emitted = quill.getLength() > 1 ? quill.getSemanticHTML() : ""));
+  const html = () => (quill.getLength() > 1 ? quill.getSemanticHTML().replaceAll("&nbsp;", " ") : "");
+  quill.on("text-change", () => (model.value = emitted = html()));
   // Content can arrive after mount (e.g. loaded from the API); reload unless the change came from typing
   watch(model, (html) => html !== emitted && quill.clipboard.dangerouslyPasteHTML(html ?? ""), { immediate: true });
 });
