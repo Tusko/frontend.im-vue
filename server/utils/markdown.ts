@@ -2,6 +2,14 @@ import type { H3Event } from "h3";
 
 const entities: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', nbsp: " ", "#39": "'" };
 
+// &#39; / &#x27; → char; anything unparseable or out of range stays as written instead of throwing
+const decode = (m: string, e: string) => {
+  if (entities[e]) return entities[e];
+  if (e[0] !== "#") return m;
+  const n = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : Number(e.slice(1));
+  return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m;
+};
+
 // Just enough HTML → Markdown for the CMS fields (lists, links, headings, paragraphs)
 export const htmlToMd = (html: string) =>
   html
@@ -11,7 +19,7 @@ export const htmlToMd = (html: string) =>
     .replace(/<\/(p|ul|ol)>/gi, "\n\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<[^>]+>/g, " ") // divs/spans from pasted HTML must not break a list item
-    .replace(/&(#?\w+);/g, (m, e) => entities[e] ?? (e[0] === "#" ? String.fromCodePoint(+e.slice(1)) : m))
+    .replace(/&(#?\w+);/g, decode)
     .replace(/[ \t]+/g, " ")
     .replace(/^ +| +$/gm, "")
     .replace(/^-\n+(?=\S)/gm, "- ") // join a bullet to text that a <div> pushed onto the next line
