@@ -44,6 +44,7 @@ posts.forEach((p, i) =>
       posted_at: p.acf.posted_at,
       thumbnail: p.thumbnail[0],
       cover: p.cover[0],
+      soon: p.acf.soon ? 1 : 0,
     })
   )
 );

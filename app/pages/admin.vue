@@ -64,7 +64,7 @@ const toggle = (r: Row) => (openKey.value = openKey.value === keyOf(r) ? null : 
 
 function add() {
   const row: Row = { _key: `new-${++newId}`, sort: (rows.value[0]?.sort ?? 1) - 1 };
-  if (section.value === "projects") Object.assign(row, { title: "", url: "", cats: [], posted_at: "", thumbnail: "", cover: "" });
+  if (section.value === "projects") Object.assign(row, { title: "", url: "", cats: [], posted_at: "", thumbnail: "", cover: "", soon: 0 });
   rows.value.unshift(row);
   openKey.value = row._key;
 }
@@ -234,7 +234,7 @@ const summary = computed(() => {
               <img v-if="r.thumbnail || r.cover" :src="r.thumbnail || r.cover" alt="" loading="lazy" draggable="false" />
               <span v-else class="tile-blank">{{ (r.title || "New")[0] }}</span>
               <span class="tile-title" v-html="r.title || 'Untitled project'" />
-              <span class="tile-meta">{{ year(r.posted_at) }}</span>
+              <span class="tile-meta">{{ [year(r.posted_at), r.soon && "Soon"].filter(Boolean).join(" · ") }}</span>
             </button>
           </li>
           <li v-if="openKey === keyOf(r)" class="detail">
@@ -256,6 +256,7 @@ const summary = computed(() => {
                   <AdminTagInput v-model="r.cats" :suggestions="allCats" :list-id="`cats-${keyOf(r)}`" />
                 </div>
                 <label class="field">Published <input v-model="r.posted_at" type="date" /></label>
+                <label class="field check"><input v-model="r.soon" type="checkbox" :true-value="1" :false-value="0" /> Soon (listed, not linked)</label>
                 <div class="actions">
                   <button type="submit" class="btn primary" :disabled="busy">Save project</button>
                   <button type="button" class="btn" :disabled="busy || rows.indexOf(r) === 0" @click="move(r, -1)">Move earlier</button>
@@ -711,6 +712,19 @@ const summary = computed(() => {
   font-weight: 600;
   &.wide {
     grid-column: 1 / -1;
+  }
+  &.check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    align-self: end;
+    padding-bottom: 10px;
+    input {
+      padding: 0;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
   }
   input {
     padding: 10px 12px;

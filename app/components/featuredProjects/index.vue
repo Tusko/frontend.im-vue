@@ -15,7 +15,8 @@
         />
         <div class="projects-grid-content">
           <h4>
-            <a :href="project.url" v-html="project.title" target="_blank"></a>
+            <a v-if="project.url" :href="project.url" v-html="project.title" target="_blank"></a>
+            <span v-else v-html="project.title"></span>
           </h4>
           <h5>{{ project.cats.join(" / ") }}</h5>
           <time v-if="postedAt(project.postedAt)">Posted on {{ postedAt(project.postedAt) }}</time>

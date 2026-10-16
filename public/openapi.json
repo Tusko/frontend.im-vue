@@ -40,7 +40,7 @@
                         "properties": {
                           "id": { "type": "integer" },
                           "title": { "type": "string" },
-                          "url": { "type": "string" },
+                          "url": { "type": "string", "description": "Empty for projects that are not live yet" },
                           "cats": { "type": "array", "items": { "type": "string" } },
                           "postedAt": { "type": "string", "description": "YYYYMMDD" },
                           "thumbnail": { "type": "string" },

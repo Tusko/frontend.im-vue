@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
     if (col === "sort") {
       if (!Number.isInteger(Number(v))) throw bad("sort must be an integer");
       values.push(Number(v));
+    } else if (col === "soon") {
+      values.push(v ? 1 : 0);
     } else if (col === "cats") {
       if (!Array.isArray(v) || v.some((c) => typeof c !== "string")) throw bad("cats must be string[]");
       values.push(JSON.stringify(v.map((c: string) => c.trim()).filter(Boolean)));

@@ -3,7 +3,7 @@ import type { H3Event } from "h3";
 // Writable columns per admin table; the table name is only ever taken from these keys
 export const adminTables = {
   experience: ["sort", "company", "company_url", "company_desc", "position", "years", "list"],
-  projects: ["sort", "title", "url", "cats", "posted_at", "thumbnail", "cover"],
+  projects: ["sort", "title", "url", "cats", "posted_at", "thumbnail", "cover", "soon"],
 } as const;
 
 export const adminTable = (event: H3Event) => {

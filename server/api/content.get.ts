@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
       .all<Experience>(),
     db
       .prepare(
-        "SELECT id, title, url, cats, posted_at AS postedAt, thumbnail, cover FROM projects ORDER BY sort, id"
+        // "Soon" projects are listed without a link
+        "SELECT id, title, IIF(soon, '', url) AS url, cats, posted_at AS postedAt, thumbnail, cover FROM projects ORDER BY sort, id"
       )
       .all<Project>(),
     db.prepare("SELECT value FROM settings WHERE key = 'other_projects'").first<string>("value"),

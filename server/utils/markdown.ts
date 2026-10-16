@@ -41,7 +41,10 @@ export async function siteMarkdown(event: H3Event) {
     ),
     "## Projects",
     content.projects
-      .map((p) => `- [${htmlToMd(p.title).replace(/\n+/g, " – ")}](${p.url}) (${p.postedAt.slice(0, 4)}): ${p.cats.join(", ")}`)
+      .map((p) => {
+        const title = htmlToMd(p.title).replace(/\n+/g, " – ");
+        return `- ${p.url ? `[${title}](${p.url})` : title} (${p.postedAt.slice(0, 4)}): ${p.cats.join(", ")}`;
+      })
       .join("\n"),
     htmlToMd(content.otherProjects),
   ].join("\n\n") + "\n";
