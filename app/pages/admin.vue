@@ -63,9 +63,9 @@ watch(section, load);
 const toggle = (r: Row) => (openKey.value = openKey.value === keyOf(r) ? null : keyOf(r));
 
 function add() {
-  const row: Row = { _key: `new-${++newId}`, sort: rows.value.length + 1 };
+  const row: Row = { _key: `new-${++newId}`, sort: (rows.value[0]?.sort ?? 1) - 1 };
   if (section.value === "projects") Object.assign(row, { title: "", url: "", cats: [], posted_at: "", thumbnail: "", cover: "" });
-  rows.value.push(row);
+  rows.value.unshift(row);
   openKey.value = row._key;
 }
 
