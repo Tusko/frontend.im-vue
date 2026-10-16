@@ -21,8 +21,8 @@ uploaded images live in the `MEDIA` R2 bucket and are served from `/media/<key>`
 
 ```sh
 wrangler d1 migrations apply DB --local     # or --remote
-# one-off import from WordPress (DELETEs existing rows first)
-node scripts/import-wp.mjs > /tmp/seed.sql && wrangler d1 execute DB --local --file /tmp/seed.sql   # or --remote
+# copy production content into a freshly migrated local DB
+wrangler d1 export DB --remote --no-schema --output /tmp/prod.sql && wrangler d1 execute DB --local --file /tmp/prod.sql
 ```
 
 `yarn dev` and `yarn preview` share the same local state in `.wrangler/state/v3`.
