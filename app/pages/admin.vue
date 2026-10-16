@@ -514,6 +514,7 @@ const summary = computed(() => {
 }
 .tile {
   position: relative;
+  z-index: 0; // own stacking context so the notch stays above the panel
   > button {
     display: block;
     width: 100%;
@@ -580,9 +581,10 @@ const summary = computed(() => {
     content: "";
     position: absolute;
     left: 50%;
-    bottom: -17px;
-    width: 16px;
-    height: 16px;
+    bottom: -29px;
+    z-index: 1;
+    width: 24px;
+    height: 24px;
     background: var(--surface);
     transform: translateX(-50%) rotate(45deg);
     border-radius: 3px 0 0 0;
