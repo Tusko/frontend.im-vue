@@ -39,9 +39,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     githubUser: "tusko",
     githubToken: "",
-    // Cloudflare Access: NUXT_ACCESS_TEAM_DOMAIN (<team>.cloudflareaccess.com), NUXT_ACCESS_AUD (app AUD tag)
+    // Cloudflare Access: NUXT_ACCESS_TEAM_DOMAIN (<team>.cloudflareaccess.com), NUXT_ACCESS_AUD (app AUD tag),
+    // NUXT_ACCESS_EMAIL (comma-separated emails allowed into /api/admin)
     accessTeamDomain: "",
     accessAud: "",
+    accessEmail: "",
   },
 
   // Admin is a client-only SPA shell; data comes from /api/admin/** behind Access

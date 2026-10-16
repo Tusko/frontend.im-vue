@@ -24,18 +24,23 @@ export default defineEventHandler(async (event) => {
   }
   if (import.meta.dev) return;
 
-  const { accessTeamDomain, accessAud } = useRuntimeConfig(event);
+  const { accessTeamDomain, accessAud, accessEmail } = useRuntimeConfig(event);
   const token = getHeader(event, "cf-access-jwt-assertion") || getCookie(event, "CF_Authorization");
-  if (!accessTeamDomain || !accessAud || !token) throw createError({ statusCode: 401 });
+  if (!accessTeamDomain || !accessAud || !accessEmail || !token) throw createError({ statusCode: 401 });
 
   jwks ??= createRemoteJWKSet(new URL(`https://${accessTeamDomain}/cdn-cgi/access/certs`));
+  let email: unknown;
   try {
-    await jwtVerify(token, jwks, {
+    ({ payload: { email } } = await jwtVerify(token, jwks, {
       issuer: `https://${accessTeamDomain}`,
       audience: accessAud,
       algorithms: ["RS256"],
-    });
+    }));
   } catch {
     throw createError({ statusCode: 401 });
   }
+  // Don't trust the Access policy alone: a service token or a widened policy must not pass
+  const allowed = accessEmail.toLowerCase().split(",").map((e) => e.trim()).filter(Boolean);
+  if (typeof email !== "string" || !allowed.includes(email.toLowerCase()))
+    throw createError({ statusCode: 403 });
 });

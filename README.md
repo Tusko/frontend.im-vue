@@ -35,9 +35,10 @@ node scripts/import-wp.mjs > /tmp/seed.sql && wrangler d1 execute DB --local --f
 2. Copy the application's **AUD tag**: `wrangler secret put NUXT_ACCESS_AUD`.
 3. Set the team domain (`<team>.cloudflareaccess.com`): `wrangler secret put NUXT_ACCESS_TEAM_DOMAIN`
    (or a plain var in `wrangler.jsonc`).
+4. Set the allowed email(s), comma-separated, matching the Access policy: `wrangler secret put NUXT_ACCESS_EMAIL`.
 
 Access guards both paths at the edge. The `/admin` page is a client-only SPA shell with no data,
 so the Worker only re-verifies the Access JWT on `/api/admin/**` (`server/middleware/admin.ts`):
-missing config or an invalid token is a 401. The check is skipped only under `yarn dev`.
+missing config or an invalid token is a 401, a valid token for an email not in `NUXT_ACCESS_EMAIL` is a 403. The check is skipped only under `yarn dev`.
 The `*.workers.dev` URL is not covered by Access unless you add it to the application, so
 `/admin` loads there, but its API calls still get 401 without a valid JWT.
