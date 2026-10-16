@@ -48,6 +48,11 @@
 <script setup lang="ts">
 const { data: github } = await useGithub();
 
+useSeoMeta({
+  ogImage: () => github.value?.user.avatar_url,
+  ogImageAlt: () => github.value?.user.name,
+});
+
 const links: Record<string, string> = {
   MyLab: "https://intro.mylab.report",
   MSTrade: "https://mstrade.org",

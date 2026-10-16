@@ -18,6 +18,8 @@ export default defineNuxtConfig({
           content: "Front-end developer building fast, accessible sites with Vue.js, Nuxt and WordPress.",
         },
         { property: "og:type", content: "website" },
+        // Square avatar: small "summary" card, not the wide summary_large_image crop
+        { name: "twitter:card", content: "summary" },
         { name: "theme-color", content: "#1a1e22" },
       ],
       link: [
