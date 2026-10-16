@@ -145,11 +145,29 @@ async function uploadBlob(blob: Blob) {
   return (await $fetch<{ url: string }>("/api/admin/upload", { method: "POST", body })).url;
 }
 
-async function replaceImage(e: Event, r: Row) {
+const IMAGE_TYPES = "image/png,image/jpeg,image/webp,image/avif,image/gif";
+const fileDrag = ref(false);
+// A file dropped outside the drop zone would navigate away and lose unsaved edits
+const blockFileDrop = (e: DragEvent) => e.dataTransfer?.types.includes("Files") && e.preventDefault();
+onMounted(() => ["dragover", "drop"].forEach((t) => window.addEventListener(t, blockFileDrop as EventListener)));
+onUnmounted(() => ["dragover", "drop"].forEach((t) => window.removeEventListener(t, blockFileDrop as EventListener)));
+
+function pickImage(e: Event, r: Row) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   input.value = "";
-  if (!file) return;
+  if (file) replaceImage(file, r);
+}
+function dropImage(e: DragEvent, r: Row) {
+  fileDrag.value = false;
+  const file = e.dataTransfer?.files[0];
+  if (file) replaceImage(file, r);
+}
+
+async function replaceImage(file: File, r: Row) {
+  // Drops skip the input's accept filter
+  if (!IMAGE_TYPES.split(",").includes(file.type)) return say("Use a PNG, JPEG, WebP, AVIF or GIF image.", true);
+  if (busy.value) return;
   busy.value = true;
   try {
     const [cover, thumbnail] = await Promise.all([square(file, 1024), square(file, 256)]);
@@ -239,14 +257,20 @@ const summary = computed(() => {
           </li>
           <li v-if="openKey === keyOf(r)" class="detail">
             <form @submit.prevent="save(r)">
-              <div class="detail-image">
+              <div
+                class="detail-image"
+                :class="{ 'drop-active': fileDrag }"
+                @dragover.prevent="fileDrag = $event.dataTransfer!.types.includes('Files')"
+                @dragleave="fileDrag = false"
+                @drop.prevent="dropImage($event, r)"
+              >
                 <img v-if="r.cover || r.thumbnail" :src="r.cover || r.thumbnail" alt="" />
                 <span v-else class="tile-blank">No image</span>
                 <label class="btn">
                   {{ r.cover ? "Replace image" : "Upload image" }}
-                  <input type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/gif" class="sr-only" @change="replaceImage($event, r)" />
+                  <input type="file" :accept="IMAGE_TYPES" class="sr-only" @change="pickImage($event, r)" />
                 </label>
-                <p class="hint">Cropped to a square, up to 1024 × 1024.</p>
+                <p class="hint">Or drop an image here. Cropped to a square, up to 1024 × 1024.</p>
               </div>
               <div class="fields">
                 <label class="field wide">Title <input v-model="r.title" required /></label>
@@ -591,6 +615,12 @@ const summary = computed(() => {
   display: grid;
   gap: 10px;
   align-content: start;
+  border-radius: 14px;
+  &.drop-active {
+    outline: 2px dashed var(--primary);
+    outline-offset: 4px;
+    background: var(--primary-tint);
+  }
   img,
   .tile-blank {
     width: 100%;
