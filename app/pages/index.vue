@@ -3,7 +3,14 @@
     <div v-if="github" class="me">
       <section class="row inrow">
         <figure class="me-avatar row" data-aos="zoom-in-up">
-          <img :src="github.user.avatar_url" :alt="github.user.name" />
+          <img
+            :src="avatar(180)"
+            :srcset="transform ? `${avatar(360)} 2x` : undefined"
+            :alt="github.user.name"
+            width="180"
+            height="180"
+            fetchpriority="high"
+          />
         </figure>
         <article class="content" data-aos="zoom-in-up" data-aos-delay="300">
           <h1>{{ github.user.name }}</h1>
@@ -52,6 +59,13 @@ useSeoMeta({
   ogImage: () => github.value?.user.avatar_url,
   ogImageAlt: () => github.value?.user.name,
 });
+
+// Cloudflare resizes the ~300 KB GitHub PNG to a few KB of AVIF/WebP; only the production zone has /cdn-cgi/image
+const transform = useRequestURL().hostname.endsWith("frontend.im");
+const avatar = (w: number) => {
+  const src = github.value?.user.avatar_url ?? "";
+  return transform ? `/cdn-cgi/image/width=${w},height=${w},fit=cover,quality=80,format=auto/${src}` : src;
+};
 
 const links: Record<string, string> = {
   MyLab: "https://intro.mylab.report",
