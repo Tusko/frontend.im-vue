@@ -5,20 +5,13 @@ Allow: /
 Disallow: /admin
 Disallow: /api/admin
 
+# Training-only crawlers: Content-Signal is a request, so block them outright
 User-agent: GPTBot
-User-agent: OAI-SearchBot
-User-agent: ChatGPT-User
 User-agent: ClaudeBot
-User-agent: Claude-SearchBot
-User-agent: Claude-User
-User-agent: PerplexityBot
-User-agent: Perplexity-User
+User-agent: CCBot
 User-agent: Google-Extended
 User-agent: Applebot-Extended
-User-agent: CCBot
-Content-Signal: search=yes, ai-input=yes, ai-train=no
-Allow: /
-Disallow: /admin
-Disallow: /api/admin
+User-agent: cohere-ai
+Disallow: /
 
 Sitemap: https://frontend.im/sitemap.xml

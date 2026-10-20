@@ -33,6 +33,29 @@
                       }
                     },
                     "otherProjects": { "type": "string", "description": "HTML" },
+                    "seo": {
+                      "type": "object",
+                      "description": "Per-page title/description/share image, extra meta tags and the site-wide JSON-LD",
+                      "properties": {
+                        "pages": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                              "title": { "type": "string" },
+                              "description": { "type": "string" },
+                              "image": { "type": "string" }
+                            }
+                          }
+                        },
+                        "meta": {
+                          "type": "array",
+                          "items": { "type": "object", "properties": { "name": { "type": "string" }, "content": { "type": "string" } } }
+                        },
+                        "profiles": { "type": "array", "items": { "type": "string" }, "description": "Social profile URLs (the Person's sameAs)" },
+                        "jsonld": { "type": ["object", "null"] }
+                      }
+                    },
                     "projects": {
                       "type": "array",
                       "items": {

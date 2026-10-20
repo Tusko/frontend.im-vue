@@ -55,11 +55,6 @@
 <script setup lang="ts">
 const { data: github } = await useGithub();
 
-useSeoMeta({
-  ogImage: () => github.value?.user.avatar_url,
-  ogImageAlt: () => github.value?.user.name,
-});
-
 // Cloudflare resizes the ~300 KB GitHub PNG to a few KB of AVIF/WebP; only the production zone has /cdn-cgi/image
 const transform = useRequestURL().hostname.endsWith("frontend.im");
 const avatar = (w: number) => {

@@ -5,17 +5,13 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: "en" },
-      title: "Tusko Trush - Front-End/Vue.js/Wordpress developer",
+      // Fallbacks; per-page title/description are edited at /admin → SEO
+      title: "Tusko Trush – Vue.js & Nuxt Team Lead, Lviv, Ukraine",
       meta: [
         {
           name: "description",
           content:
-            "Tusko Trush — front-end developer from Ukraine building fast, accessible sites with Vue.js, Nuxt and WordPress. Portfolio, featured projects and CV.",
-        },
-        { property: "og:title", content: "Tusko Trush - Front-End/Vue.js/Wordpress developer" },
-        {
-          property: "og:description",
-          content: "Front-end developer building fast, accessible sites with Vue.js, Nuxt and WordPress.",
+            "Front-end team lead and full-stack JS developer in Lviv, Ukraine. 15+ years with Vue.js, Nuxt, TypeScript and Cloudflare Workers. Projects, repos and CV.",
         },
         { property: "og:type", content: "website" },
         // Square avatar: small "summary" card, not the wide summary_large_image crop
@@ -44,10 +40,24 @@ export default defineNuxtConfig({
     accessTeamDomain: "",
     accessAud: "",
     accessEmail: "",
+    public: {
+      // Canonical host for canonical/og:url, whichever hostname served the page
+      siteUrl: "https://frontend.im",
+    },
   },
 
   // Admin is a client-only SPA shell; data comes from /api/admin/** behind Access
   routeRules: {
+    // HTML responses only: static assets are served by Workers Assets without running the Worker
+    "/**": {
+      headers: {
+        "Strict-Transport-Security": "max-age=31536000",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+      },
+    },
     // Discovery for crawlers and agents; Vary because "/" also answers Accept: text/markdown
     "/": {
       headers: {
@@ -55,8 +65,8 @@ export default defineNuxtConfig({
         Vary: "Accept",
       },
     },
-    "/admin": { ssr: false },
-    "/admin/**": { ssr: false },
+    "/admin": { ssr: false, headers: { "X-Robots-Tag": "noindex" } },
+    "/admin/**": { ssr: false, headers: { "X-Robots-Tag": "noindex" } },
   },
 
   nitro: {

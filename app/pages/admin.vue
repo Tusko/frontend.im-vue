@@ -1,16 +1,20 @@
 <script setup lang="ts">
 type Row = Record<string, any>;
-type Section = "projects" | "experience" | "other";
+type Section = "projects" | "experience" | "other" | "seo";
 
 const sections: { key: Section; label: string }[] = [
   { key: "projects", label: "Projects" },
   { key: "experience", label: "Experience" },
   { key: "other", label: "Other projects" },
+  { key: "seo", label: "SEO" },
 ];
 
 const section = ref<Section>("projects");
 const rows = ref<Row[]>([]);
 const otherProjects = ref("");
+type SeoPage = { title: string; description: string; image: string };
+const seo = ref<{ pages: Record<string, SeoPage>; meta: { name: string; content: string }[]; profiles: string[] } | null>(null);
+const jsonld = ref(""); // edited as text, parsed on save
 const openKey = ref<string | number | null>(null);
 const busy = ref(false);
 const status = ref<{ text: string; error?: boolean } | null>(null);
@@ -47,8 +51,13 @@ const toApi = ({ _key, ...r }: Row): Row => {
 async function load() {
   openKey.value = null;
   try {
-    if (section.value === "other") {
-      otherProjects.value = (await $fetch<{ other_projects: string }>("/api/admin/settings")).other_projects;
+    if (section.value === "other" || section.value === "seo") {
+      const settings = await $fetch<{ other_projects: string; seo: any }>("/api/admin/settings");
+      otherProjects.value = settings.other_projects;
+      // Pages the site renders always get a form, even before anything is saved for them
+      const blank = { title: "", description: "", image: "" };
+      seo.value = { ...settings.seo, pages: { "/": { ...blank }, "/cv": { ...blank }, ...settings.seo.pages } };
+      jsonld.value = settings.seo.jsonld ? JSON.stringify(settings.seo.jsonld, null, 2) : "";
     } else {
       rows.value = (await $fetch<Row[]>(`/api/admin/${section.value}`)).map(toForm);
       counts[section.value] = rows.value.length;
@@ -192,6 +201,48 @@ async function saveOther() {
   }
 }
 
+// JSON-LD must be a single JSON object (a @graph holds several entities)
+const jsonldError = computed(() => {
+  if (!jsonld.value.trim()) return "";
+  try {
+    const v = JSON.parse(jsonld.value);
+    return v && typeof v === "object" && !Array.isArray(v) ? "" : "Must be a JSON object, e.g. { \"@context\": … }";
+  } catch (e: any) {
+    return e.message;
+  }
+});
+const formatJsonld = () => !jsonldError.value && jsonld.value.trim() && (jsonld.value = JSON.stringify(JSON.parse(jsonld.value), null, 2));
+
+async function saveSeo() {
+  if (jsonldError.value) return say(`JSON-LD: ${jsonldError.value}`, true);
+  busy.value = true;
+  try {
+    const body = { seo: { ...seo.value, jsonld: jsonld.value.trim() ? JSON.parse(jsonld.value) : null } };
+    await $fetch("/api/admin/settings", { method: "PUT", body });
+    say("SEO saved");
+  } catch (e) {
+    fail(e);
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function pickShareImage(e: Event, p: SeoPage) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file || busy.value) return;
+  busy.value = true;
+  try {
+    p.image = await uploadBlob(file);
+    say("Image ready. Save to publish it.");
+  } catch (err) {
+    fail(err);
+  } finally {
+    busy.value = false;
+  }
+}
+
 // Every category already in use, for autocomplete
 const allCats = computed(() => [...new Set(rows.value.flatMap((r) => r.cats ?? []))].sort());
 
@@ -199,6 +250,7 @@ const year = (d?: string) => d?.slice(0, 4) ?? "";
 const heading = computed(() => sections.find((s) => s.key === section.value)!.label);
 const summary = computed(() => {
   if (section.value === "other") return "Free-form text shown under the project grid on the home page.";
+  if (section.value === "seo") return "What search engines, link previews and AI assistants see. Empty fields fall back to the defaults.";
   const n = rows.value.length;
   const noun = section.value === "projects" ? "project" : "position";
   const drag = section.value === "projects" ? "drag a closed tile" : "drag the dots";
@@ -231,7 +283,7 @@ const summary = computed(() => {
           <h1>{{ heading }}</h1>
           <p>{{ summary }}</p>
         </div>
-        <button v-if="section !== 'other'" type="button" class="btn primary" @click="add">
+        <button v-if="section === 'projects' || section === 'experience'" type="button" class="btn primary" @click="add">
           {{ section === "projects" ? "Add project" : "Add position" }}
         </button>
       </header>
@@ -339,6 +391,85 @@ const summary = computed(() => {
         </li>
       </ol>
 
+      <form v-else-if="section === 'seo'" class="seo" @submit.prevent="saveSeo">
+        <template v-if="seo">
+          <section v-for="(p, path) in seo.pages" :key="path" class="panel">
+            <h2>Page <code>{{ path }}</code></h2>
+            <!-- Rough Google result preview -->
+            <div class="serp" aria-hidden="true">
+              <span class="serp-url">frontend.im{{ path === "/" ? "" : path }}</span>
+              <span class="serp-title">{{ p.title || "(default title)" }}</span>
+              <span class="serp-desc">{{ p.description || "(default description)" }}</span>
+            </div>
+            <div class="fields">
+              <label class="field wide">
+                <span>Title <small :class="{ over: p.title.length > 60 }">{{ p.title.length }}/60</small></span>
+                <input v-model="p.title" maxlength="200" />
+              </label>
+              <label class="field wide">
+                <span>Description <small :class="{ over: p.description.length > 160 }">{{ p.description.length }}/160</small></span>
+                <textarea v-model="p.description" rows="3" maxlength="500" />
+              </label>
+              <label class="field wide">
+                Share image (link previews; 1200 × 630 works best, empty uses the GitHub avatar)
+                <span class="row-inline">
+                  <input v-model="p.image" placeholder="/media/… or https://" />
+                  <label class="btn">
+                    Upload
+                    <input type="file" :accept="IMAGE_TYPES" class="sr-only" @change="pickShareImage($event, p)" />
+                  </label>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Meta tags</h2>
+            <p class="hint">Added to every page, e.g. <code>google-site-verification</code>.</p>
+            <div v-for="(m, i) in seo.meta" :key="i" class="fields meta-row">
+              <label class="field">Name <input v-model="m.name" placeholder="google-site-verification" /></label>
+              <label class="field">Content <input v-model="m.content" /></label>
+              <button type="button" class="btn danger" @click="seo.meta.splice(i, 1)">Remove</button>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn" @click="seo.meta.push({ name: '', content: '' })">Add meta tag</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Profiles</h2>
+            <p class="hint">
+              Your accounts elsewhere (GitHub, Instagram, LinkedIn…). Added as <code>sameAs</code> to the Person in the
+              JSON-LD below, so search engines and AI assistants link them to you.
+            </p>
+            <div v-for="(_, i) in seo.profiles" :key="i" class="row-inline">
+              <input v-model="seo.profiles[i]" type="url" placeholder="https://" :aria-label="`Profile ${i + 1}`" />
+              <button type="button" class="btn danger" @click="seo.profiles.splice(i, 1)">Remove</button>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn" @click="seo.profiles.push('')">Add profile</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Structured data (JSON-LD)</h2>
+            <p class="hint">
+              Added to every page. Check it with
+              <a href="https://validator.schema.org/" target="_blank" rel="noopener">validator.schema.org</a> after saving.
+            </p>
+            <textarea v-model="jsonld" class="code" rows="24" spellcheck="false" :aria-invalid="!!jsonldError" />
+            <p v-if="jsonldError" class="hint error">{{ jsonldError }}</p>
+            <div class="actions">
+              <button type="button" class="btn" :disabled="!!jsonldError" @click="formatJsonld">Format</button>
+            </div>
+          </section>
+
+          <div class="actions">
+            <button type="submit" class="btn primary" :disabled="busy || !!jsonldError">Save SEO</button>
+          </div>
+        </template>
+      </form>
+
       <form v-else class="panel" @submit.prevent="saveOther">
         <AdminHtmlEditor v-model="otherProjects" label="Other projects" />
         <div class="actions">
@@ -346,7 +477,7 @@ const summary = computed(() => {
         </div>
       </form>
 
-      <p v-if="section !== 'other' && !rows.length" class="empty">
+      <p v-if="(section === 'projects' || section === 'experience') && !rows.length" class="empty">
         Nothing here yet. Use “{{ section === "projects" ? "Add project" : "Add position" }}” to create the first one.
       </p>
     </main>
@@ -782,6 +913,104 @@ const summary = computed(() => {
   border-radius: 18px;
   background: var(--surface);
   box-shadow: 0 1px 2px rgb(26 30 34 / 0.06);
+}
+/* SEO */
+.seo {
+  display: grid;
+  gap: 20px;
+  max-width: 960px;
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  code {
+    font-family: var(--font);
+    font-size: 0.9em;
+  }
+  .field > span {
+    display: flex;
+    justify-content: space-between;
+  }
+  small {
+    font-weight: 400;
+    &.over {
+      color: var(--danger);
+    }
+  }
+}
+.serp {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-family: Arial, sans-serif;
+  .serp-url {
+    color: #202124;
+    font-size: 13px;
+  }
+  .serp-title {
+    color: #1a0dab;
+    font-size: 19px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .serp-desc {
+    color: #4d5156;
+    font-size: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+.row-inline {
+  display: flex;
+  gap: 8px;
+  .btn.danger {
+    margin-left: 0;
+  }
+  input:not(.sr-only) {
+    flex: 1;
+  }
+}
+.meta-row {
+  grid-template-columns: 1fr 2fr auto;
+  align-items: end;
+  .btn.danger {
+    margin-left: 0;
+  }
+}
+.field textarea,
+.row-inline > input,
+textarea.code {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  resize: vertical;
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-tint);
+  }
+}
+textarea.code {
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  tab-size: 2;
+  &[aria-invalid="true"] {
+    border-color: var(--danger);
+  }
+}
+.hint.error {
+  color: var(--danger);
 }
 .actions {
   grid-column: 1 / -1;

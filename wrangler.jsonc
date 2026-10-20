@@ -24,7 +24,8 @@
     { "pattern": "frontend.im/*", "zone_name": "frontend.im" },
     { "pattern": "www.frontend.im/*", "zone_name": "frontend.im" }
   ],
-  "workers_dev": true,
+  "workers_dev": false,
+  "preview_urls": false,
   "observability": { "enabled": true }
   // GitHub token: `wrangler secret put NUXT_GITHUB_TOKEN`
 }

@@ -16,6 +16,8 @@ GitHub token (optional, raises API rate limit): `wrangler secret put NUXT_GITHUB
 API responses (`/api/github`, `/api/wakatime`) are cached 24h in the `CACHE` KV namespace.
 Site content (`/api/content`) is read uncached from the `DB` D1 database and edited at `/admin`;
 uploaded images live in the `MEDIA` R2 bucket and are served from `/media/<key>`.
+Page titles, descriptions, share images, extra meta tags and the site-wide JSON-LD are edited at `/admin` → SEO
+(`settings.seo` in D1; `migrations/0003_seo.sql` seeds the defaults).
 
 ## Content database
 
@@ -40,5 +42,5 @@ wrangler d1 export DB --remote --no-schema --output /tmp/prod.sql && wrangler d1
 Access guards both paths at the edge. The `/admin` page is a client-only SPA shell with no data,
 so the Worker only re-verifies the Access JWT on `/api/admin/**` (`server/middleware/admin.ts`):
 missing config or an invalid token is a 401, a valid token for an email not in `NUXT_ACCESS_EMAIL` is a 403. The check is skipped only under `yarn dev`.
-The `*.workers.dev` URL is not covered by Access unless you add it to the application, so
-`/admin` loads there, but its API calls still get 401 without a valid JWT.
+`workers_dev` and preview URLs are off, so the site answers only on frontend.im. If you turn them back on,
+Access won't cover the `*.workers.dev` host unless you add it, but the API still returns 401 without a valid JWT.

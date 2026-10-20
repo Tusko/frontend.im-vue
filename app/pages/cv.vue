@@ -78,13 +78,12 @@ const pn = "+38 063 50 60 700";
 const domain = useRequestURL().origin;
 const getAge = Math.abs(new Date(Date.now() - Date.parse(birthDate)).getUTCFullYear() - 1970);
 
-// Browser "Save as PDF" names the file after the title
-useHead({ title: "Vitalii-Trush-CV" });
-
 // ponytail: browser print instead of server PDF; Browser Rendering + R2 in the PDF phase
 const route = useRoute();
 onMounted(() => {
   if (route.query.preview !== undefined) return;
+  // Browser "Save as PDF" names the file after the title; set it at print time so head updates can't undo it
+  addEventListener("beforeprint", () => (document.title = "Vitalii-Trush-CV"), { once: true });
   addEventListener("afterprint", () => navigateTo("/"), { once: true });
   print();
 });

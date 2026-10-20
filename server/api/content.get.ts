@@ -19,7 +19,7 @@ interface Project {
 // Public site content, edited via /admin. Uncached: D1 reads are cheap and edits show up immediately
 export default defineEventHandler(async (event) => {
   const db = cfEnv(event).DB;
-  const [experience, projects, otherProjects] = await Promise.all([
+  const [experience, projects, otherProjects, seo] = await Promise.all([
     db
       .prepare(
         "SELECT company, company_url, company_desc, position, years, list FROM experience ORDER BY sort, id"
@@ -32,9 +32,11 @@ export default defineEventHandler(async (event) => {
       )
       .all<Project>(),
     db.prepare("SELECT value FROM settings WHERE key = 'other_projects'").first<string>("value"),
+    readSeo(db),
   ]);
 
   return {
+    seo,
     experience: experience.results,
     otherProjects: otherProjects ?? "",
     projects: projects.results.map((p) => ({ ...p, cats: JSON.parse(p.cats) as string[] })),
