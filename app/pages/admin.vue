@@ -211,7 +211,10 @@ const jsonldError = computed(() => {
     return e.message;
   }
 });
-const formatJsonld = () => !jsonldError.value && jsonld.value.trim() && (jsonld.value = JSON.stringify(JSON.parse(jsonld.value), null, 2));
+const reformat = (indent?: number) =>
+  !jsonldError.value && jsonld.value.trim() && (jsonld.value = JSON.stringify(JSON.parse(jsonld.value), null, indent));
+const formatJsonld = () => reformat(2);
+const minifyJsonld = () => reformat();
 
 async function saveSeo() {
   if (jsonldError.value) return say(`JSON-LD: ${jsonldError.value}`, true);
@@ -457,10 +460,11 @@ const summary = computed(() => {
               Added to every page. Check it with
               <a href="https://validator.schema.org/" target="_blank" rel="noopener">validator.schema.org</a> after saving.
             </p>
-            <textarea v-model="jsonld" class="code" rows="24" spellcheck="false" :aria-invalid="!!jsonldError" />
+            <AdminJsonEditor v-model="jsonld" label="JSON-LD" />
             <p v-if="jsonldError" class="hint error">{{ jsonldError }}</p>
             <div class="actions">
               <button type="button" class="btn" :disabled="!!jsonldError" @click="formatJsonld">Format</button>
+              <button type="button" class="btn" :disabled="!!jsonldError" @click="minifyJsonld">Minify</button>
             </div>
           </section>
 
@@ -983,8 +987,7 @@ const summary = computed(() => {
   }
 }
 .field textarea,
-.row-inline > input,
-textarea.code {
+.row-inline > input {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -998,15 +1001,6 @@ textarea.code {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px var(--primary-tint);
-  }
-}
-textarea.code {
-  font-family: var(--font);
-  font-size: 13px;
-  line-height: 1.5;
-  tab-size: 2;
-  &[aria-invalid="true"] {
-    border-color: var(--danger);
   }
 }
 .hint.error {
