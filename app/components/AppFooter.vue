@@ -8,7 +8,7 @@
         <a :href="links.nuxt" rel="noopener nofollow" target="_blank">Nuxt</a>, served from
         <a :href="links.workers" rel="noopener nofollow" target="_blank">Cloudflare Workers</a>
       </p>
-      <p>
+      <p class="badges">
         <a
           href="https://wakatime.com/@36bf7ce8-0e11-4e63-bea7-06612a86747f"
           rel="nofollow noopener"
@@ -16,6 +16,11 @@
           ><img
             src="https://wakatime.com/badge/user/36bf7ce8-0e11-4e63-bea7-06612a86747f.svg"
             alt="Total time coded since Aug 20 2014"
+        /></a>
+        <a href="https://sagbot.app/d/frontend.im" rel="noopener" target="_blank"
+          ><img
+            src="https://sagbot.app/badge/frontend.im.svg?style=compact"
+            alt="SagBot score for frontend.im"
         /></a>
       </p>
     </div>
@@ -41,6 +46,12 @@ footer {
   }
   p {
     margin-bottom: 10px;
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
   }
 }
 </style>
